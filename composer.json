@@ -1,0 +1,34 @@
+{
+    "name": "demvsystems/jsend",
+    "authors": [
+        {
+            "name": "DEMV-Systems",
+            "email": "packages@demv.de"
+        },
+        {
+            "name": "Randy Schütt",
+            "email": "r.schuett@demv.de",
+            "homepage": "https://github.com/dgame"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "dgame/php-ensurance": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.4"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ],
+        "psr-4": {
+            "Demv\\JSend\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "phpunit"
+        ]
+    }
+}
