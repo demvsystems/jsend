@@ -2,7 +2,6 @@
 
 namespace Demv\JSend;
 
-use function Dgame\Ensurance\assertion;
 use PHPUnit\Framework\MockObject\BadMethodCallException;
 
 /**
