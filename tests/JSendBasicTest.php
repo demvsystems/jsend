@@ -2,8 +2,8 @@
 
 namespace Demv\JSend;
 
+use BadMethodCallException;
 use Dgame\Ensurance\Exception\EnsuranceException;
-use PHPUnit\Framework\MockObject\BadMethodCallException;
 use PHPUnit\Framework\TestCase;
 
 final class JSendBasicTest extends TestCase

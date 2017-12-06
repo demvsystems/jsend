@@ -2,7 +2,7 @@
 
 namespace Demv\JSend;
 
-use PHPUnit\Framework\MockObject\BadMethodCallException;
+use BadMethodCallException;
 
 /**
  * Class JSendResponse
