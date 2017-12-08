@@ -67,17 +67,7 @@ final class JSendErrorResponse extends AbstractJSendResponse implements JSendErr
                          ])
         );
     }
-
-    /**
-     * @internal
-     *
-     * @return array
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->asArray();
-    }
-
+    
     /**
      * @return JSendErrorResponseInterface
      */
