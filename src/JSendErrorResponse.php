@@ -57,15 +57,25 @@ final class JSendErrorResponse extends AbstractJSendResponse implements JSendErr
     /**
      * @return array
      */
-    public function jsonSerialize(): array
+    public function asArray(): array
     {
         return array_merge(
-            array_filter(parent::jsonSerialize()),
+            array_filter(parent::asArray()),
             array_filter([
-                'message' => $this->message,
-                'code'    => $this->code
-            ])
+                             'message' => $this->message,
+                             'code'    => $this->code
+                         ])
         );
+    }
+
+    /**
+     * @internal
+     *
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->asArray();
     }
 
     /**
