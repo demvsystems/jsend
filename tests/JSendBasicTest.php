@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class JSendBasicTest extends TestCase
 {
-    public function testEncodeSuccess()
+    public function testEncodeSuccess(): void
     {
         $json = '{
             "status" : "success",
@@ -37,7 +37,7 @@ final class JSendBasicTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, $result);
     }
 
-    public function testEncodeError()
+    public function testEncodeError(): void
     {
         $json = '{
             "status" : "error",
@@ -48,7 +48,7 @@ final class JSendBasicTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, $result);
     }
 
-    public function testEncodeErrorWithoutMessage()
+    public function testEncodeErrorWithoutMessage(): void
     {
         $this->expectException(EnsuranceException::class);
         $this->expectExceptionMessage('Need a descriptive error-message');
@@ -56,7 +56,7 @@ final class JSendBasicTest extends TestCase
         JSend::encode(['status' => 'error']);
     }
 
-    public function testEncodeEmpty()
+    public function testEncodeEmpty(): void
     {
         $this->expectException(EnsuranceException::class);
         $this->expectExceptionMessage('Empty response cannot be converted to valid JSend-JSON');
@@ -64,7 +64,7 @@ final class JSendBasicTest extends TestCase
         JSend::encode([]);
     }
 
-    public function testEncodeWithoutStatus()
+    public function testEncodeWithoutStatus(): void
     {
         $this->expectException(EnsuranceException::class);
         $this->expectExceptionMessage('Key "status" is required');
@@ -72,7 +72,7 @@ final class JSendBasicTest extends TestCase
         JSend::encode(['msg' => 'Foo']);
     }
 
-    public function testSuccessResponse()
+    public function testSuccessResponse(): void
     {
         $json = '{
             "status" : "success",
@@ -103,7 +103,7 @@ final class JSendBasicTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
-    public function testSuccessResponseWithoutData()
+    public function testSuccessResponseWithoutData(): void
     {
         $json = '{ "status": "success" }';
         $this->expectException(EnsuranceException::class);
@@ -111,7 +111,7 @@ final class JSendBasicTest extends TestCase
         JSend::decode($json);
     }
 
-    public function testSuccessResponseWithNullData()
+    public function testSuccessResponseWithNullData(): void
     {
         $json     = '{ "status": "success", "data": null }';
         $response = JSend::decode($json);
@@ -120,7 +120,7 @@ final class JSendBasicTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
-    public function testSuccessResponseWithEmptyData()
+    public function testSuccessResponseWithEmptyData(): void
     {
         $json     = '{ "status": "success", "data": [] }';
         $response = JSend::decode($json);
@@ -129,7 +129,7 @@ final class JSendBasicTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
-    public function testFailResponse()
+    public function testFailResponse(): void
     {
         $json = '{
             "status" : "fail",
@@ -142,7 +142,7 @@ final class JSendBasicTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
-    public function testGetErrorOnNoneError()
+    public function testGetErrorOnNoneError(): void
     {
         $response = Jsend::decode('{"status": "success", "data": null}');
         $this->expectException(BadMethodCallException::class);
@@ -150,7 +150,7 @@ final class JSendBasicTest extends TestCase
         $response->getError();
     }
 
-    public function testErrorResponse()
+    public function testErrorResponse(): void
     {
         $json = '{
             "status" : "error",

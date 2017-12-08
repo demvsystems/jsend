@@ -48,11 +48,21 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     /**
      * @return array
      */
-    public function jsonSerialize(): array
+    public function asArray(): array
     {
         return [
             'status' => (string) $this->status,
             'data'   => $this->data
         ];
+    }
+
+    /**
+     * @internal
+     *
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->asArray();
     }
 }
