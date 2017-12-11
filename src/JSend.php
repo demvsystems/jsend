@@ -3,8 +3,8 @@
 namespace Demv\JSend;
 
 use Seld\JsonLint\JsonParser;
-use function Dgame\Ensurance\ensure;
 use Seld\JsonLint\ParsingException;
+use function Dgame\Ensurance\ensure;
 
 /**
  * Class JSend
