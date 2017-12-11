@@ -1,8 +1,9 @@
 <?php
 
-namespace Demv\JSend;
+namespace Demv\JSend\Test;
 
 use BadMethodCallException;
+use Demv\JSend\JSend;
 use Dgame\Ensurance\Exception\EnsuranceException;
 use PHPUnit\Framework\TestCase;
 
