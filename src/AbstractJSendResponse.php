@@ -69,9 +69,9 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     }
 
     /**
-     *
+     * @param int|null $code
      */
-    public function respond(): void
+    public function respond(int $code = null): void
     {
         $code = $code ?? JSend::getDefaultHttpStatusCode($this);
         ensure($code)->isInt()->isBetween(100, 511);
