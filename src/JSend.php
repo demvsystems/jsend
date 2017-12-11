@@ -17,7 +17,7 @@ final class JSend
      *
      * @return JSendResponseInterface
      */
-    private static function interpret(array $response): JSendResponseInterface
+    public static function interpret(array $response): JSendResponseInterface
     {
         ensure($response)->isArray()->hasKey('status')->orThrow('Key "status" is required');
 

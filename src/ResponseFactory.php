@@ -43,21 +43,13 @@ final class ResponseFactory
      */
     public function convert(ResponseInterface $response): JSendResponseInterface
     {
-        $code    = $response->getStatusCode();
         $content = $response->getBody()->getContents();
 
-        $parser = new JsonParser();
-        $result = $parser->parse($content, JsonParser::PARSE_TO_ASSOC | JsonParser::DETECT_KEY_CONFLICTS);
+        $parser         = new JsonParser();
+        $result         = $parser->parse($content, JsonParser::PARSE_TO_ASSOC | JsonParser::DETECT_KEY_CONFLICTS);
+        $result['code'] = $response->getStatusCode();
 
-        if ($code >= 200 && $code < 300) {
-            return $this->success($result['data'] ?? null);
-        }
-
-        if ($code >= 400) {
-            return $this->error($result, $code);
-        }
-
-        return $this->fail($result['data'] ?? null);
+        return JSend::interpret($result);
     }
 
     /**

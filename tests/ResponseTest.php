@@ -18,20 +18,22 @@ final class ResponseTest extends TestCase
 
     public function testSuccessConversion(): void
     {
+        $json = '{"status": "success", "data": ["Holy", "Moly"]}';
+
         $success = new DummyResponse();
-        $success->withBody(new DummyStream('{"data": ["Holy", "Moly"]}'));
+        $success->withBody(new DummyStream($json));
         $success->withStatus(214);
 
         $response = ResponseFactory::instance()->convert($success);
         $this->assertTrue($response->getStatus()->isSuccess());
         $this->assertEquals(['Holy', 'Moly'], $response->getData());
-        $this->assertJsonStringEqualsJsonString('{"status": "success", "data": ["Holy", "Moly"]}', json_encode($response));
+        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
     public function testFailConversion(): void
     {
         $fail = new DummyResponse();
-        $fail->withBody(new DummyStream('{}'));
+        $fail->withBody(new DummyStream('{"status": "fail", "data": null}'));
 
         $response = ResponseFactory::instance()->convert($fail);
         $this->assertTrue($response->getStatus()->isFail());
@@ -41,14 +43,13 @@ final class ResponseTest extends TestCase
 
     public function testErrorConversion(): void
     {
-        $json = '{"data": ["Invalid"], "message": "Something is not right..."}';
+        $json = '{"status": "error", "data": ["Invalid"], "message": "Something is not right..."}';
 
         $error = new DummyResponse();
         $error->withBody(new DummyStream($json));
         $error->withStatus(501);
 
         $result           = json_decode($json, true);
-        $result['status'] = 'error';
         $result['code']   = $error->getStatusCode();
 
         $response = ResponseFactory::instance()->convert($error);
