@@ -76,18 +76,4 @@ final class JSend
 
         return 200;
     }
-
-    /**
-     * @param JSendResponseInterface $response
-     * @param int|null               $code
-     */
-    public static function respondWith(JSendResponseInterface $response, int $code = null): void
-    {
-        $code = $code ?? self::getDefaultHttpStatusCode($response);
-        ensure($code)->isInt()->isBetween(100, 511);
-
-        header('Content-Type: application/json; charset="UTF-8"', true, $code);
-        print json_encode($response);
-        exit;
-    }
 }
