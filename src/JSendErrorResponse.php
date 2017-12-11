@@ -7,7 +7,6 @@ namespace Demv\JSend;
  * @package Demv\JSend
  */
 
-use function Dgame\Ensurance\enforce;
 use function Dgame\Ensurance\ensure;
 
 /**

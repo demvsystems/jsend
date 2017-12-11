@@ -22,62 +22,62 @@ final class DummyStream implements StreamInterface
         return $this->getContents();
     }
 
-    public function close()
+    public function close(): void
     {
         // TODO: Implement close() method.
     }
 
-    public function detach()
+    public function detach(): void
     {
         // TODO: Implement detach() method.
     }
 
-    public function getSize()
+    public function getSize(): void
     {
         // TODO: Implement getSize() method.
     }
 
-    public function tell()
+    public function tell(): void
     {
         // TODO: Implement tell() method.
     }
 
-    public function eof()
+    public function eof(): void
     {
         // TODO: Implement eof() method.
     }
 
-    public function isSeekable()
+    public function isSeekable(): void
     {
         // TODO: Implement isSeekable() method.
     }
 
-    public function seek($offset, $whence = SEEK_SET)
+    public function seek($offset, $whence = SEEK_SET): void
     {
         // TODO: Implement seek() method.
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         // TODO: Implement rewind() method.
     }
 
-    public function isWritable()
+    public function isWritable(): void
     {
         // TODO: Implement isWritable() method.
     }
 
-    public function write($string)
+    public function write($string): void
     {
         // TODO: Implement write() method.
     }
 
-    public function isReadable()
+    public function isReadable(): void
     {
         // TODO: Implement isReadable() method.
     }
 
-    public function read($length)
+    public function read($length): void
     {
         // TODO: Implement read() method.
     }
@@ -87,7 +87,7 @@ final class DummyStream implements StreamInterface
         return $this->content;
     }
 
-    public function getMetadata($key = null)
+    public function getMetadata($key = null): void
     {
         // TODO: Implement getMetadata() method.
     }

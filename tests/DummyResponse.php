@@ -14,47 +14,47 @@ final class DummyResponse implements ResponseInterface
     private $body;
     private $code;
 
-    public function getProtocolVersion()
+    public function getProtocolVersion(): void
     {
         // TODO: Implement getProtocolVersion() method.
     }
 
-    public function withProtocolVersion($version)
+    public function withProtocolVersion($version): void
     {
         // TODO: Implement withProtocolVersion() method.
     }
 
-    public function getHeaders()
+    public function getHeaders(): void
     {
         // TODO: Implement getHeaders() method.
     }
 
-    public function hasHeader($name)
+    public function hasHeader($name): void
     {
         // TODO: Implement hasHeader() method.
     }
 
-    public function getHeader($name)
+    public function getHeader($name): void
     {
         // TODO: Implement getHeader() method.
     }
 
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): void
     {
         // TODO: Implement getHeaderLine() method.
     }
 
-    public function withHeader($name, $value)
+    public function withHeader($name, $value): void
     {
         // TODO: Implement withHeader() method.
     }
 
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader($name, $value): void
     {
         // TODO: Implement withAddedHeader() method.
     }
 
-    public function withoutHeader($name)
+    public function withoutHeader($name): void
     {
         // TODO: Implement withoutHeader() method.
     }
@@ -64,7 +64,7 @@ final class DummyResponse implements ResponseInterface
         return $this->body;
     }
 
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): void
     {
         $this->body = $body;
     }
@@ -74,12 +74,12 @@ final class DummyResponse implements ResponseInterface
         return $this->code;
     }
 
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus($code, $reasonPhrase = ''): void
     {
         $this->code = $code;
     }
 
-    public function getReasonPhrase()
+    public function getReasonPhrase(): void
     {
     }
 }

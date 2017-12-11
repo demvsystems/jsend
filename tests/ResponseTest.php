@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ResponseTest extends TestCase
 {
-    public function testDefaultHttpStatusCode()
+    public function testDefaultHttpStatusCode(): void
     {
         $this->assertEquals(200, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->success()));
         $this->assertEquals(null, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->fail()));
@@ -16,7 +16,7 @@ final class ResponseTest extends TestCase
         $this->assertEquals(500, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf', 'code' => 500])));
     }
 
-    public function testSuccessConversion()
+    public function testSuccessConversion(): void
     {
         $success = new DummyResponse();
         $success->withBody(new DummyStream('{"data": ["Holy", "Moly"]}'));
@@ -28,7 +28,7 @@ final class ResponseTest extends TestCase
         $this->assertJsonStringEqualsJsonString('{"status": "success", "data": ["Holy", "Moly"]}', json_encode($response));
     }
 
-    public function testFailConversion()
+    public function testFailConversion(): void
     {
         $fail = new DummyResponse();
         $fail->withBody(new DummyStream('{}'));
@@ -39,7 +39,7 @@ final class ResponseTest extends TestCase
         $this->assertJsonStringEqualsJsonString('{"status": "fail", "data": null}', json_encode($response));
     }
 
-    public function testErrorConversion()
+    public function testErrorConversion(): void
     {
         $json = '{"data": ["Invalid"], "message": "Something is not right..."}';
 
