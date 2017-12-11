@@ -81,7 +81,7 @@ final class JSend
      * @param JSendResponseInterface $response
      * @param int|null               $code
      */
-    public static function render(JSendResponseInterface $response, int $code = null): void
+    public static function respondWith(JSendResponseInterface $response, int $code = null): void
     {
         $code = $code ?? self::getDefaultHttpStatusCode($response);
         ensure($code)->isInt()->isBetween(100, 511);
