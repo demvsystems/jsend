@@ -4,6 +4,7 @@ namespace Demv\JSend;
 
 use Seld\JsonLint\JsonParser;
 use function Dgame\Ensurance\ensure;
+use Seld\JsonLint\ParsingException;
 
 /**
  * Class JSend
@@ -34,7 +35,7 @@ final class JSend
      * @param string $json
      *
      * @return JSendResponseInterface
-     * @throws \Seld\JsonLint\ParsingException
+     * @throws ParsingException
      */
     public static function decode(string $json): JSendResponseInterface
     {
@@ -65,19 +66,15 @@ final class JSend
     /**
      * @param JSendResponseInterface $response
      *
-     * @return int|null
+     * @return int
      */
-    public static function getDefaultHttpStatusCode(JSendResponseInterface $response): ?int
+    public static function getDefaultHttpStatusCode(JSendResponseInterface $response): int
     {
         if ($response->getStatus()->isError()) {
-            return $response->getError()->getCode() ?? 400;
+            return $response->getError()->getCode() ?? 500;
         }
 
-        if ($response->getStatus()->isSuccess()) {
-            return 200;
-        }
-
-        return null;
+        return 200;
     }
 
     /**
@@ -87,7 +84,7 @@ final class JSend
     public static function render(JSendResponseInterface $response, int $code = null): void
     {
         $code = $code ?? self::getDefaultHttpStatusCode($response);
-        ensure($code)->isInt()->isBetween(100, 500);
+        ensure($code)->isInt()->isBetween(100, 511);
 
         header('Content-Type: application/json; charset="UTF-8"', true, $code);
         print json_encode($response);
