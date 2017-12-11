@@ -13,7 +13,9 @@
     ],
     "require": {
         "php": "^7.1",
-        "dgame/php-ensurance": "^1.0"
+        "dgame/php-ensurance": "^1.0",
+        "seld/jsonlint": "^1.6",
+        "psr/http-message": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.4"
@@ -23,7 +25,8 @@
             "src/"
         ],
         "psr-4": {
-            "Demv\\JSend\\": "src/"
+            "Demv\\JSend\\": "src/",
+            "Demv\\JSend\\Test\\": "tests/"
         }
     },
     "scripts": {

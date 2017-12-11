@@ -16,6 +16,10 @@ use function Dgame\Ensurance\ensure;
 final class Status implements StatusInterface
 {
     /**
+     * @var Status[]
+     */
+    private static $instances = [];
+    /**
      * @var string
      */
     private $status;
@@ -25,11 +29,25 @@ final class Status implements StatusInterface
      *
      * @param string $status
      */
-    public function __construct(string $status)
+    private function __construct(string $status)
     {
-        ensure($status)->isIn([self::STATUS_SUCCESS, self::STATUS_FAIL, self::STATUS_ERROR])->orThrow('Expected valid status');
-
         $this->status = $status;
+    }
+
+    /**
+     * @param string $status
+     *
+     * @return Status
+     */
+    public static function instance(string $status): self
+    {
+        ensure($status)->isIn([self::STATUS_SUCCESS, self::STATUS_FAIL, self::STATUS_ERROR])
+                       ->orThrow('Expected valid status');
+        if (!array_key_exists($status, self::$instances)) {
+            self::$instances[$status] = new self($status);
+        }
+
+        return self::$instances[$status];
     }
 
     /**
@@ -37,7 +55,7 @@ final class Status implements StatusInterface
      */
     public static function success(): StatusInterface
     {
-        return new self(self::STATUS_SUCCESS);
+        return self::instance(self::STATUS_SUCCESS);
     }
 
     /**
@@ -45,7 +63,7 @@ final class Status implements StatusInterface
      */
     public static function fail(): StatusInterface
     {
-        return new self(self::STATUS_FAIL);
+        return self::instance(self::STATUS_FAIL);
     }
 
     /**
@@ -53,7 +71,7 @@ final class Status implements StatusInterface
      */
     public static function error(): StatusInterface
     {
-        return new self(self::STATUS_ERROR);
+        return self::instance(self::STATUS_ERROR);
     }
 
     /**

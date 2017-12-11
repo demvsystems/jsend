@@ -2,7 +2,8 @@
 
 namespace Demv\JSend;
 
-use InvalidArgumentException;
+use Seld\JsonLint\JsonParser;
+use Seld\JsonLint\ParsingException;
 use function Dgame\Ensurance\ensure;
 
 /**
@@ -16,11 +17,11 @@ final class JSend
      *
      * @return JSendResponseInterface
      */
-    private static function interpret(array $response): JSendResponseInterface
+    public static function interpret(array $response): JSendResponseInterface
     {
         ensure($response)->isArray()->hasKey('status')->orThrow('Key "status" is required');
 
-        $status = new Status($response['status']);
+        $status = Status::instance($response['status']);
         if ($status->isSuccess() || $status->isFail()) {
             ensure($response)->isArray()->hasKey('data')->orThrow('Key "data" is required');
 
@@ -34,15 +35,14 @@ final class JSend
      * @param string $json
      *
      * @return JSendResponseInterface
+     * @throws ParsingException
      */
     public static function decode(string $json): JSendResponseInterface
     {
-        $result = json_decode($json, true);
-        if (json_last_error() === JSON_ERROR_NONE) {
-            return self::interpret($result);
-        }
+        $parser = new JsonParser();
+        $result = $parser->parse($json, JsonParser::PARSE_TO_ASSOC | JsonParser::DETECT_KEY_CONFLICTS);
 
-        throw new InvalidArgumentException('Malformed Json: ' . $json . ' :: ' . json_last_error_msg());
+        return self::interpret($result);
     }
 
     /**
@@ -55,11 +55,39 @@ final class JSend
     {
         ensure($response)->isNotEmpty()->orThrow('Empty response cannot be converted to valid JSend-JSON');
         ensure($response)->isArray()->hasKey('status')->orThrow('Key "status" is required');
-        $status    = new Status($response['status']);
+        $status = Status::instance($response['status']);
         if ($status->isError()) {
             ensure($response)->isArray()->hasKey('message')->orThrow('Need a descriptive error-message');
         }
 
         return json_encode($response, $options);
+    }
+
+    /**
+     * @param JSendResponseInterface $response
+     *
+     * @return int
+     */
+    public static function getDefaultHttpStatusCode(JSendResponseInterface $response): int
+    {
+        if ($response->getStatus()->isError()) {
+            return $response->getError()->getCode() ?? 500;
+        }
+
+        return 200;
+    }
+
+    /**
+     * @param JSendResponseInterface $response
+     * @param int|null               $code
+     */
+    public static function respondWith(JSendResponseInterface $response, int $code = null): void
+    {
+        $code = $code ?? self::getDefaultHttpStatusCode($response);
+        ensure($code)->isInt()->isBetween(100, 511);
+
+        header('Content-Type: application/json; charset="UTF-8"', true, $code);
+        print json_encode($response);
+        exit;
     }
 }
