@@ -162,4 +162,25 @@ final class JSendBasicTest extends TestCase
         $this->assertEquals('Unable to communicate with database', $response->getError()->getMessage());
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
+
+    public function testSuccess()
+    {
+        $this->assertTrue(Status::success()->isSuccess());
+        $json = '{"status": "success", "data": null}';
+        $this->assertJsonStringEqualsJsonString($json, JSend::success(['data' => null]));
+    }
+
+    public function testFail()
+    {
+        $this->assertTrue(Status::fail()->isFail());
+        $json = '{"status": "fail", "data": null}';
+        $this->assertJsonStringEqualsJsonString($json, JSend::fail(['data' => null]));
+    }
+
+    public function testError()
+    {
+        $this->assertTrue(Status::error()->isError());
+        $json = '{"status": "error", "message": ""}';
+        $this->assertJsonStringEqualsJsonString($json, JSend::error(['message' => '']));
+    }
 }

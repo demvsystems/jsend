@@ -2,11 +2,6 @@
 
 namespace Demv\JSend;
 
-/**
- * Class Status
- * @package Demv\JSend
- */
-
 use function Dgame\Ensurance\ensure;
 
 /**
@@ -15,6 +10,17 @@ use function Dgame\Ensurance\ensure;
  */
 final class Status implements StatusInterface
 {
+    public const DEFAULT_MAPPING = [
+        -1 => self::STATUS_ERROR,
+        0  => self::STATUS_FAIL,
+        1  => self::STATUS_SUCCESS
+    ];
+
+    /**
+     * @var StatusInterface[]
+     */
+    private static $instances = [];
+
     /**
      * @var string
      */
@@ -24,6 +30,8 @@ final class Status implements StatusInterface
      * Status constructor.
      *
      * @param string $status
+     *
+     * @deprecated Will be private in the Future. Use Status::instance instead
      */
     public function __construct(string $status)
     {
@@ -33,11 +41,25 @@ final class Status implements StatusInterface
     }
 
     /**
+     * @param string $status
+     *
+     * @return StatusInterface
+     */
+    public static function instance(string $status): StatusInterface
+    {
+        if (!array_key_exists($status, self::$instances)) {
+            self::$instances[$status] = new self($status);
+        }
+
+        return self::$instances[$status];
+    }
+
+    /**
      * @return StatusInterface
      */
     public static function success(): StatusInterface
     {
-        return new self(self::STATUS_SUCCESS);
+        return self::instance(self::STATUS_SUCCESS);
     }
 
     /**
@@ -45,7 +67,7 @@ final class Status implements StatusInterface
      */
     public static function fail(): StatusInterface
     {
-        return new self(self::STATUS_FAIL);
+        return self::instance(self::STATUS_FAIL);
     }
 
     /**
@@ -53,7 +75,22 @@ final class Status implements StatusInterface
      */
     public static function error(): StatusInterface
     {
-        return new self(self::STATUS_ERROR);
+        return self::instance(self::STATUS_ERROR);
+    }
+
+    /**
+     * @param int   $value
+     * @param array $mapping
+     *
+     * @return StatusInterface
+     */
+    public static function translate(int $value, array $mapping = self::DEFAULT_MAPPING): StatusInterface
+    {
+        ensure($value)->isKeyOf($mapping)->orThrow('Cannot map %d, there is not mapping available', $value);
+        $status = $mapping[$value];
+        ensure($status)->isNotEmpty()->isString()->orThrow('Status must be string');
+
+        return self::instance($status);
     }
 
     /**
