@@ -61,7 +61,7 @@ final class ResponseTest extends TestCase
         $this->assertEquals($error->getStatusCode(), $response->getError()->getCode());
     }
 
-    public function testSuccessBuild()
+    public function testSuccessBuild(): void
     {
         $json = '{"status": "success", "data": null}';
 
@@ -78,7 +78,7 @@ final class ResponseTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
-    public function testStatusObjectToStringBuild()
+    public function testStatusObjectToStringBuild(): void
     {
         $json = '{"status": "success", "data": ["Holy", "Moly"]}';
 
@@ -88,7 +88,7 @@ final class ResponseTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
-    public function testFailBuild()
+    public function testFailBuild(): void
     {
         $json = '{"status": "fail", "data": []}';
 
@@ -98,7 +98,7 @@ final class ResponseTest extends TestCase
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
-    public function testErrorBuild()
+    public function testErrorBuild(): void
     {
         $json = '{"status": "error", "data": ["Invalid"], "message": "Something is not right...", "code": 42}';
 
