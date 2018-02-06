@@ -76,4 +76,12 @@ final class JSend
 
         return 200;
     }
+
+    /**
+     * @return JSendBuilder
+     */
+    public static function build(): JSendBuilder
+    {
+        return new JSendBuilder();
+    }
 }
