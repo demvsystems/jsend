@@ -3,7 +3,10 @@
 namespace Demv\JSend\Test;
 
 use Demv\JSend\JSend;
+use Demv\JSend\JSendResponse;
 use Demv\JSend\ResponseFactory;
+use Demv\JSend\Status;
+use Demv\JSend\StatusInterface;
 use PHPUnit\Framework\TestCase;
 
 final class ResponseTest extends TestCase
@@ -49,8 +52,8 @@ final class ResponseTest extends TestCase
         $error->withBody(new DummyStream($json));
         $error->withStatus(501);
 
-        $result           = json_decode($json, true);
-        $result['code']   = $error->getStatusCode();
+        $result         = json_decode($json, true);
+        $result['code'] = $error->getStatusCode();
 
         $response = ResponseFactory::instance()->convert($error);
         $this->assertTrue($response->getStatus()->isError());
@@ -58,5 +61,26 @@ final class ResponseTest extends TestCase
         $this->assertJsonStringEqualsJsonString(json_encode($result), json_encode($response));
         $this->assertEquals('Something is not right...', $response->getError()->getMessage());
         $this->assertEquals($error->getStatusCode(), $response->getError()->getCode());
+    }
+
+    public function testMapping()
+    {
+        $response = new JSendResponse(Status::translate(1), null);
+        $this->assertTrue($response->getStatus()->isSuccess());
+
+        $response = new JSendResponse(Status::translate(0), null);
+        $this->assertTrue($response->getStatus()->isFail());
+
+        $response = new JSendResponse(Status::translate(-1), null);
+        $this->assertTrue($response->getStatus()->isError());
+
+        $response = new JSendResponse(Status::translate(true), null);
+        $this->assertTrue($response->getStatus()->isSuccess());
+
+        $response = new JSendResponse(Status::translate(false), null);
+        $this->assertTrue($response->getStatus()->isFail());
+
+        $response = new JSendResponse(Status::translate(false, [false => StatusInterface::STATUS_ERROR]), null);
+        $this->assertTrue($response->getStatus()->isError());
     }
 }
