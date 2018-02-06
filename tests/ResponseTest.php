@@ -63,7 +63,7 @@ final class ResponseTest extends TestCase
         $this->assertEquals($error->getStatusCode(), $response->getError()->getCode());
     }
 
-    public function testMapping()
+    public function testMapping(): void
     {
         $response = new JSendResponse(Status::translate(1), null);
         $this->assertTrue($response->getStatus()->isSuccess());
