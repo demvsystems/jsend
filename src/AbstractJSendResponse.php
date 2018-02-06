@@ -2,6 +2,8 @@
 
 namespace Demv\JSend;
 
+use function Dgame\Ensurance\ensure;
+
 /**
  * Class AbstractJSendResponse
  * @package Demv\JSend
@@ -48,11 +50,34 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     /**
      * @return array
      */
-    public function jsonSerialize(): array
+    public function asArray(): array
     {
         return [
             'status' => (string) $this->status,
             'data'   => $this->data
         ];
+    }
+
+    /**
+     * @internal
+     *
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->asArray();
+    }
+
+    /**
+     * @param int|null $code
+     */
+    public function respond(int $code = null): void
+    {
+        $code = $code ?? JSend::getDefaultHttpStatusCode($this);
+        ensure($code)->isInt()->isBetween(100, 511);
+
+        header('Content-Type: application/json; charset="UTF-8"', true, $code);
+        print json_encode($this);
+        exit;
     }
 }

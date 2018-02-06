@@ -30,13 +30,9 @@ final class Status implements StatusInterface
      * Status constructor.
      *
      * @param string $status
-     *
-     * @deprecated Will be private in the Future. Use Status::instance instead
      */
-    public function __construct(string $status)
+    private function __construct(string $status)
     {
-        ensure($status)->isIn([self::STATUS_SUCCESS, self::STATUS_FAIL, self::STATUS_ERROR])->orThrow('Expected valid status');
-
         $this->status = $status;
     }
 
@@ -47,6 +43,7 @@ final class Status implements StatusInterface
      */
     public static function instance(string $status): StatusInterface
     {
+        ensure($status)->isIn([self::STATUS_SUCCESS, self::STATUS_FAIL, self::STATUS_ERROR])->orThrow('Expected valid status');
         if (!array_key_exists($status, self::$instances)) {
             self::$instances[$status] = new self($status);
         }

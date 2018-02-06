@@ -24,4 +24,9 @@ interface JSendResponseInterface extends JsonSerializable
      * @return JSendErrorResponseInterface
      */
     public function getError(): JSendErrorResponseInterface;
+
+    /**
+     * @param int|null $code
+     */
+    public function respond(int $code = null): void;
 }

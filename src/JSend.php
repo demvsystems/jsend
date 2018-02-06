@@ -2,7 +2,8 @@
 
 namespace Demv\JSend;
 
-use InvalidArgumentException;
+use Seld\JsonLint\JsonParser;
+use Seld\JsonLint\ParsingException;
 use function Dgame\Ensurance\ensure;
 
 /**
@@ -16,7 +17,7 @@ final class JSend
      *
      * @return JSendResponseInterface
      */
-    private static function interpret(array $response): JSendResponseInterface
+    public static function interpret(array $response): JSendResponseInterface
     {
         ensure($response)->isArray()->hasKey(StatusInterface::KEY)->orThrow('Key "status" is required');
 
@@ -34,15 +35,14 @@ final class JSend
      * @param string $json
      *
      * @return JSendResponseInterface
+     * @throws ParsingException
      */
     public static function decode(string $json): JSendResponseInterface
     {
-        $result = json_decode($json, true);
-        if (json_last_error() === JSON_ERROR_NONE) {
-            return self::interpret($result);
-        }
+        $parser = new JsonParser();
+        $result = $parser->parse($json, JsonParser::PARSE_TO_ASSOC | JsonParser::DETECT_KEY_CONFLICTS);
 
-        throw new InvalidArgumentException('Malformed Json: ' . $json . ' :: ' . json_last_error_msg());
+        return self::interpret($result);
     }
 
     /**
@@ -96,5 +96,19 @@ final class JSend
         $response[StatusInterface::KEY] = StatusInterface::STATUS_ERROR;
 
         return self::encode($response);
+    }
+
+    /**
+     * @param JSendResponseInterface $response
+     *
+     * @return int
+     */
+    public static function getDefaultHttpStatusCode(JSendResponseInterface $response): int
+    {
+        if ($response->getStatus()->isError()) {
+            return $response->getError()->getCode() ?? 500;
+        }
+
+        return 200;
     }
 }
