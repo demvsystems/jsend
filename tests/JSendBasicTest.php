@@ -4,6 +4,7 @@ namespace Demv\JSend\Test;
 
 use BadMethodCallException;
 use Demv\JSend\JSend;
+use Demv\JSend\Status;
 use Dgame\Ensurance\Exception\EnsuranceException;
 use PHPUnit\Framework\TestCase;
 
@@ -162,5 +163,26 @@ final class JSendBasicTest extends TestCase
         $this->assertTrue($response->getStatus()->isError());
         $this->assertEquals('Unable to communicate with database', $response->getError()->getMessage());
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+    }
+
+    public function testSuccess(): void
+    {
+        $this->assertTrue(Status::success()->isSuccess());
+        $json = '{"status": "success", "data": null}';
+        $this->assertJsonStringEqualsJsonString($json, JSend::success(['data' => null]));
+    }
+
+    public function testFail(): void
+    {
+        $this->assertTrue(Status::fail()->isFail());
+        $json = '{"status": "fail", "data": null}';
+        $this->assertJsonStringEqualsJsonString($json, JSend::fail(['data' => null]));
+    }
+
+    public function testError(): void
+    {
+        $this->assertTrue(Status::error()->isError());
+        $json = '{"status": "error", "message": ""}';
+        $this->assertJsonStringEqualsJsonString($json, JSend::error(['message' => '']));
     }
 }
