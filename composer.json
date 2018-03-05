@@ -32,6 +32,9 @@
     "scripts": {
         "test": [
             "phpunit"
+        ],
+        "coverage": [
+            "phpunit --coverage-clover=coverage.xml"
         ]
     }
 }

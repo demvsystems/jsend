@@ -3,13 +3,13 @@ php:
   - 7.1.11
   #- 7.2 Segfault in PHPUnit, warten auf 7.2.1
   - nightly
-before_install:
-   - if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then phpenv config-rm xdebug.ini; fi
 install:
   - composer self-update
   - composer install --prefer-dist --optimize-autoloader
 script:
-  - composer test
+  - composer coverage
 cache:
   directories:
     - $HOME/.composer/cache/files
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
