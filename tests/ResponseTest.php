@@ -109,7 +109,7 @@ final class ResponseTest extends TestCase
         $this->assertTrue($response->getStatus()->isError());
     }
 
-    public function testPsr7Response()
+    public function testPsr7Response(): void
     {
         $response = JSendResponse::success(['Erfolgreich!'])->asResponse(200);
         $this->assertEquals(200, $response->getStatusCode());
