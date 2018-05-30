@@ -19,6 +19,31 @@ final class ResponseTest extends TestCase
         $this->assertEquals(400, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf', 'code' => 400])));
     }
 
+    public function testSuccessFactory()
+    {
+        $response = JSendResponse::success(['Erfolgreich!']);
+
+        $this->assertTrue($response->getStatus()->isSuccess());
+        $this->assertEquals(['Erfolgreich!'], $response->getData());
+    }
+
+    public function testFailFactory()
+    {
+        $response = JSendResponse::fail(['Irgendwas lief schief']);
+
+        $this->assertTrue($response->getStatus()->isFail());
+        $this->assertEquals(['Irgendwas lief schief'], $response->getData());
+    }
+
+    public function testErrorFactory()
+    {
+        $response = JSendResponse::error('Es ist ein Fehler aufgetreten');
+
+        $this->assertTrue($response->getStatus()->isError());
+        $this->assertEmpty($response->getData());
+        $this->assertEquals('Es ist ein Fehler aufgetreten', $response->getError()->getMessage());
+    }
+
     public function testSuccessConversion(): void
     {
         $json = '{"status": "success", "data": ["Holy", "Moly"]}';
