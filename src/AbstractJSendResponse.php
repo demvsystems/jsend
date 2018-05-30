@@ -2,6 +2,8 @@
 
 namespace Demv\JSend;
 
+use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 use function Dgame\Ensurance\ensure;
 
 /**
@@ -79,5 +81,55 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
         header('Content-Type: application/json; charset="UTF-8"', true, $code);
         print json_encode($this);
         exit;
+    }
+
+    /**
+     * @param array|null $data
+     *
+     * @return AbstractJSendResponse
+     */
+    public static function success(array $data = null): self
+    {
+        return new static(Status::success(), $data);
+    }
+
+    /**
+     * @param array|null $data
+     *
+     * @return AbstractJSendResponse
+     */
+    public static function fail(array $data = null): self
+    {
+        return new static(Status::fail(), $data);
+    }
+
+    /**
+     * @param string     $message
+     * @param int|null   $code
+     * @param array|null $data
+     *
+     * @return AbstractJSendResponse
+     */
+    public static function error(string $message, int $code = null, array $data = null): self
+    {
+        return new JSendErrorResponse(
+            Status::error(),
+            [
+                'message' => $message,
+                'code'    => $code,
+                'data'    => $data
+            ]
+        );
+    }
+
+    /**
+     * @param int   $code
+     * @param array $headers
+     *
+     * @return ResponseInterface
+     */
+    public function asResponse(int $code, array $headers = []): ResponseInterface
+    {
+        return new Response($code, $headers, json_encode($this));
     }
 }
