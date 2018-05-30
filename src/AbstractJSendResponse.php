@@ -2,6 +2,8 @@
 
 namespace Demv\JSend;
 
+use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 use function Dgame\Ensurance\ensure;
 
 /**
@@ -118,5 +120,16 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
                 'data'    => $data
             ]
         );
+    }
+
+    /**
+     * @param int   $code
+     * @param array $headers
+     *
+     * @return ResponseInterface
+     */
+    public function asResponse(int $code, array $headers = []): ResponseInterface
+    {
+        return new Response($code, $headers, json_encode($this));
     }
 }
