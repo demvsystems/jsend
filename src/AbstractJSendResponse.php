@@ -128,8 +128,9 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
      *
      * @return ResponseInterface
      */
-    public function asResponse(int $code, array $headers = []): ResponseInterface
+    public function asResponse(int $code = null, array $headers = []): ResponseInterface
     {
+        $code = $code ?? JSend::getDefaultHttpStatusCode($this);
         return new Response($code, $headers, json_encode($this));
     }
 }
