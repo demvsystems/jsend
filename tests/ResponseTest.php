@@ -19,7 +19,7 @@ final class ResponseTest extends TestCase
         $this->assertEquals(400, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf', 'code' => 400])));
     }
 
-    public function testSuccessFactory()
+    public function testSuccessFactory(): void
     {
         $response = JSendResponse::success(['Erfolgreich!']);
 
@@ -27,7 +27,7 @@ final class ResponseTest extends TestCase
         $this->assertEquals(['Erfolgreich!'], $response->getData());
     }
 
-    public function testFailFactory()
+    public function testFailFactory(): void
     {
         $response = JSendResponse::fail(['Irgendwas lief schief']);
 
@@ -35,7 +35,7 @@ final class ResponseTest extends TestCase
         $this->assertEquals(['Irgendwas lief schief'], $response->getData());
     }
 
-    public function testErrorFactory()
+    public function testErrorFactory(): void
     {
         $response = JSendResponse::error('Es ist ein Fehler aufgetreten');
 
