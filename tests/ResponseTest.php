@@ -123,4 +123,23 @@ final class ResponseTest extends TestCase
         $this->assertEquals(500, $response->getStatusCode());
         $this->assertEquals('{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}', $response->getBody()->getContents());
     }
+
+    public function testPsr7ResponseOptionalCode(): void
+    {
+        $response = JSendResponse::success(['Erfolgreich!'])->asResponse();
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('{"status":"success","data":["Erfolgreich!"]}', $response->getBody()->getContents());
+
+        $response = JSendResponse::fail(['Irgendwas lief schief'])->asResponse();
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('{"status":"fail","data":["Irgendwas lief schief"]}', $response->getBody()->getContents());
+
+        $response = JSendResponse::error('Es ist ein Fehler aufgetreten', 404)->asResponse();
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals('{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}', $response->getBody()->getContents());
+
+        $response = JSendResponse::error('Es ist ein Fehler aufgetreten')->asResponse();
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals('{"status":"error","message":"Es ist ein Fehler aufgetreten"}', $response->getBody()->getContents());
+    }
 }
