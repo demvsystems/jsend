@@ -32,10 +32,10 @@ interface JSendResponseInterface extends JsonSerializable
     public function respond(int $code = null): void;
 
     /**
-     * @param int   $code
-     * @param array $headers
+     * @param int|null $code
+     * @param array    $headers
      *
      * @return ResponseInterface
      */
-    public function asResponse(int $code, array $headers = []): ResponseInterface;
+    public function asResponse(int $code = null, array $headers = []): ResponseInterface;
 }

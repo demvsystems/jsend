@@ -123,8 +123,8 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     }
 
     /**
-     * @param int   $code
-     * @param array $headers
+     * @param int|null $code
+     * @param array    $headers
      *
      * @return ResponseInterface
      */
