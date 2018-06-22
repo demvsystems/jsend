@@ -3,6 +3,7 @@
 namespace Demv\JSend;
 
 use JsonSerializable;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Interface JSendResponseInterface
@@ -29,4 +30,12 @@ interface JSendResponseInterface extends JsonSerializable
      * @param int|null $code
      */
     public function respond(int $code = null): void;
+
+    /**
+     * @param int|null $code
+     * @param array    $headers
+     *
+     * @return ResponseInterface
+     */
+    public function asResponse(int $code = null, array $headers = []): ResponseInterface;
 }
