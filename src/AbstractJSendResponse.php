@@ -132,6 +132,8 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     {
         $code = $code ?? JSend::getDefaultHttpStatusCode($this);
 
-        return new Response($code, $headers, json_encode($this));
+        return new Response($code, [
+            'content-type' => 'application/json',
+        ] + $headers, json_encode($this));
     }
 }
