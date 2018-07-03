@@ -122,6 +122,12 @@ final class ResponseTest extends TestCase
         $response = JSendResponse::error('Es ist ein Fehler aufgetreten', 404)->asResponse(500);
         $this->assertEquals(500, $response->getStatusCode());
         $this->assertEquals('{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}', $response->getBody()->getContents());
+
+        $response = JSendResponse::success(['Stimmt der Header?'])->asResponse();
+        $this->assertEquals(['application/json'], $response->getHeader('content-type'));
+
+        $response = JSendResponse::success(['Eigene Header werden übernommen'])->asResponse(null, ['foo' => 'bar']);
+        $this->assertEquals(['bar'], $response->getHeader('foo'));
     }
 
     public function testPsr7ResponseOptionalCode(): void
