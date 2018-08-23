@@ -9,7 +9,6 @@ install:
 script:
   - composer coverage
   - composer phpcs
-  - composer phpstan
 cache:
   directories:
     - $HOME/.composer/cache/files
