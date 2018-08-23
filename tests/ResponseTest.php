@@ -13,10 +13,22 @@ final class ResponseTest extends TestCase
 {
     public function testDefaultHttpStatusCode(): void
     {
-        $this->assertEquals(200, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->success()));
-        $this->assertEquals(200, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->fail()));
-        $this->assertEquals(500, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf'])));
-        $this->assertEquals(400, JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf', 'code' => 400])));
+        $this->assertEquals(
+            200,
+            JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->success())
+        );
+        $this->assertEquals(
+            200,
+            JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->fail())
+        );
+        $this->assertEquals(
+            500,
+            JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf']))
+        );
+        $this->assertEquals(
+            400,
+            JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf', 'code' => 400]))
+        );
     }
 
     public function testSuccessFactory(): void
@@ -41,7 +53,10 @@ final class ResponseTest extends TestCase
 
         $this->assertTrue($response->getStatus()->isError());
         $this->assertEmpty($response->getData());
-        $this->assertEquals('Es ist ein Fehler aufgetreten', $response->getError()->getMessage());
+        $this->assertEquals(
+            'Es ist ein Fehler aufgetreten',
+            $response->getError()->getMessage()
+        );
     }
 
     public function testSuccessConversion(): void
@@ -121,7 +136,10 @@ final class ResponseTest extends TestCase
 
         $response = JSendResponse::error('Es ist ein Fehler aufgetreten', 404)->asResponse(500);
         $this->assertEquals(500, $response->getStatusCode());
-        $this->assertEquals('{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}', $response->getBody()->getContents());
+        $this->assertEquals(
+            '{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}',
+            $response->getBody()->getContents()
+        );
 
         $response = JSendResponse::success(['Stimmt der Header?'])->asResponse();
         $this->assertEquals(['application/json'], $response->getHeader('content-type'));
@@ -142,10 +160,16 @@ final class ResponseTest extends TestCase
 
         $response = JSendResponse::error('Es ist ein Fehler aufgetreten', 404)->asResponse();
         $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}', $response->getBody()->getContents());
+        $this->assertEquals(
+            '{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}',
+            $response->getBody()->getContents()
+        );
 
         $response = JSendResponse::error('Es ist ein Fehler aufgetreten')->asResponse();
         $this->assertEquals(500, $response->getStatusCode());
-        $this->assertEquals('{"status":"error","message":"Es ist ein Fehler aufgetreten"}', $response->getBody()->getContents());
+        $this->assertEquals(
+            '{"status":"error","message":"Es ist ein Fehler aufgetreten"}',
+            $response->getBody()->getContents()
+        );
     }
 }
