@@ -19,7 +19,9 @@
         "guzzlehttp/psr7": "^1.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.0"
+        "phpunit/phpunit": "^7.0",
+        "phpstan/phpstan": "^0.10.0",
+        "phpstan/phpstan-phpunit": "^0.10.0"
     },
     "autoload": {
         "classmap": [
@@ -34,6 +36,7 @@
         "test": [
             "phpunit"
         ],
+        "phpstan": "./vendor/bin/phpstan analyse . --ansi",
         "coverage": [
             "phpunit --coverage-clover=coverage.xml"
         ]
