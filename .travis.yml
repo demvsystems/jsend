@@ -8,6 +8,7 @@ install:
   - composer install --prefer-dist --optimize-autoloader
 script:
   - composer coverage
+  - composer phpcs
 cache:
   directories:
     - $HOME/.composer/cache/files

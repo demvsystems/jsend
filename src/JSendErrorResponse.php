@@ -34,7 +34,9 @@ final class JSendErrorResponse extends AbstractJSendResponse implements JSendErr
     {
         parent::__construct($status, $response['data'] ?? null);
         ensure($response)->isArray()->hasKey('message')->orThrow('Key "message" is required');
-        ensure(trim($response['message']))->isString()->isLongerThan(0)->orThrow('Key "message" should be a descriptive error-message');
+        ensure(trim($response['message']))->isString()->isLongerThan(0)->orThrow(
+            'Key "message" should be a descriptive error-message'
+        );
 
         $this->message = $response['message'];
         $this->code    = $response['code'] ?? null;
