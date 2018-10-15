@@ -81,7 +81,11 @@ final class JSendError implements JSendInterface
      */
     public static function from(array $decoded): self
     {
-        ['status' => $status, 'message' => $message, 'code' => $code] = export('status', 'message', 'code')->require('status', 'message')->from($decoded);
+        [
+            'status'  => $status,
+            'message' => $message,
+            'code'    => $code
+        ] = export('status', 'message', 'code')->require('status', 'message')->from($decoded);
         enforce(Status::from($status)->isError())->orThrow('Decode non-error in JSendError');
 
         return new self($message, $code);
