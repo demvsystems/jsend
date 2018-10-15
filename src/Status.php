@@ -63,11 +63,11 @@ final class Status
 
         switch (true) {
             case $code >= 200 && $code < 300:
-                return Status::success();
+                return self::success();
             case $code < 500:
-                return Status::fail();
+                return self::fail();
             default:
-                return Status::error();
+                return self::error();
         }
     }
 
