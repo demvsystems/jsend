@@ -40,11 +40,7 @@ trait JSendResponseTrait
      */
     final public function getStatusCode()
     {
-        if ($this->isError()) {
-            return $this->getCode() ?? $this->code ?? 500;
-        }
-
-        return $this->code ?? 200;
+        return $this->code ?? $this->getDefaultHttpStatusCode();
     }
 
     /**
