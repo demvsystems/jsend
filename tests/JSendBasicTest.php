@@ -2,14 +2,17 @@
 
 namespace Demv\JSend\Test;
 
-use BadMethodCallException;
 use Demv\JSend\JSend;
 use Demv\JSend\Status;
 use Dgame\Ensurance\Exception\EnsuranceException;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 final class JSendBasicTest extends TestCase
 {
+    /**
+     *
+     */
     public function testEncodeSuccess(): void
     {
         $json = '{
@@ -23,7 +26,7 @@ final class JSendBasicTest extends TestCase
             }
         }';
 
-        $result = JSend::encode(
+        $result = JSend::from(
             [
                 'status' => 'success',
                 'data'   => [
@@ -36,9 +39,12 @@ final class JSendBasicTest extends TestCase
             ]
         );
 
-        $this->assertJsonStringEqualsJsonString($json, $result);
+        $this->assertJsonStringEqualsJsonString($json, json_encode($result));
     }
 
+    /**
+     *
+     */
     public function testEncodeError(): void
     {
         $json = '{
@@ -46,34 +52,47 @@ final class JSendBasicTest extends TestCase
             "message" : "Unable to communicate with database"
         }';
 
-        $result = JSend::encode(['status' => 'error', 'message' => 'Unable to communicate with database']);
-        $this->assertJsonStringEqualsJsonString($json, $result);
+        $result = JSend::from(['status' => 'error', 'message' => 'Unable to communicate with database']);
+        $this->assertJsonStringEqualsJsonString($json, $result->encode());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testEncodeErrorWithoutMessage(): void
     {
         $this->expectException(EnsuranceException::class);
-        $this->expectExceptionMessage('Need a descriptive error-message');
+        $this->expectExceptionMessage('Field "message" is required');
 
-        JSend::encode(['status' => 'error']);
+        JSend::from(['status' => 'error'])->into();
     }
 
+    /**
+     * @throws Exception
+     */
     public function testEncodeEmpty(): void
     {
         $this->expectException(EnsuranceException::class);
-        $this->expectExceptionMessage('Empty response cannot be converted to valid JSend-JSON');
+        $this->expectExceptionMessage('Field "status" is required');
 
-        JSend::encode([]);
+        JSend::from([])->into();
     }
 
+    /**
+     *
+     */
     public function testEncodeWithoutStatus(): void
     {
         $this->expectException(EnsuranceException::class);
-        $this->expectExceptionMessage('Key "status" is required');
+        $this->expectExceptionMessage('Field "status" is required');
 
-        JSend::encode(['msg' => 'Foo']);
+        JSend::from(['msg' => 'Foo']);
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     * @throws EnsuranceException
+     */
     public function testSuccessResponse(): void
     {
         $json = '{
@@ -88,10 +107,10 @@ final class JSendBasicTest extends TestCase
         }';
 
         $response = JSend::decode($json);
-        $this->assertTrue($response->getStatus()->isSuccess());
-        $this->assertFalse($response->getStatus()->isFail());
-        $this->assertFalse($response->getStatus()->isError());
-        $this->assertNotEmpty($response->getData());
+        $this->assertTrue($response->isSuccess());
+        $this->assertFalse($response->isFail());
+        $this->assertFalse($response->isError());
+        $this->assertNotEmpty($response->into()->getData());
         $this->assertEquals(
             [
                 'post' => [
@@ -100,37 +119,50 @@ final class JSendBasicTest extends TestCase
                     'body'  => 'More content'
                 ]
             ],
-            $response->getData()
+            $response->into()->getData()
         );
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
+    /**
+     * @throws EnsuranceException
+     * @throws \Demv\JSend\InvalidJsonException
+     */
     public function testSuccessResponseWithoutData(): void
     {
         $json = '{ "status": "success" }';
         $this->expectException(EnsuranceException::class);
-        $this->expectExceptionMessage('Key "data" is required');
-        JSend::decode($json);
+        $this->expectExceptionMessage('Field "data" is required');
+        JSend::decode($json)->into();
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     */
     public function testSuccessResponseWithNullData(): void
     {
         $json     = '{ "status": "success", "data": null }';
         $response = JSend::decode($json);
-        $this->assertTrue($response->getStatus()->isSuccess());
-        $this->assertEmpty($response->getData());
-        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+        $this->assertTrue($response->isSuccess());
+        $this->assertEmpty($response->intoSuccess()->getData());
+        $this->assertJsonStringEqualsJsonString($json, $response->encode());
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     */
     public function testSuccessResponseWithEmptyData(): void
     {
         $json     = '{ "status": "success", "data": [] }';
         $response = JSend::decode($json);
-        $this->assertTrue($response->getStatus()->isSuccess());
-        $this->assertEmpty($response->getData());
+        $this->assertTrue($response->isSuccess());
+        $this->assertEmpty($response->intoSuccess()->getData());
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     */
     public function testFailResponse(): void
     {
         $json = '{
@@ -139,19 +171,36 @@ final class JSendBasicTest extends TestCase
         }';
 
         $response = JSend::decode($json);
-        $this->assertTrue($response->getStatus()->isFail());
-        $this->assertEquals(['title' => 'A title is required'], $response->getData());
+        $this->assertTrue($response->isFail());
+        $this->assertEquals(['title' => 'A title is required'], $response->intoFail()->getData());
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     */
     public function testGetErrorOnNoneError(): void
     {
         $response = Jsend::decode('{"status": "success", "data": null}');
-        $this->expectException(BadMethodCallException::class);
-        $this->expectExceptionMessage('This is not a JSend-Error');
-        $response->getError();
+        $this->expectException(EnsuranceException::class);
+        $this->expectExceptionMessage('Field "message" is required');
+        $response->intoError();
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     */
+    public function testGetErrorOnNoneErrorWithMessageField(): void
+    {
+        $response = Jsend::decode('{"status": "success", "message": ""}');
+        $this->expectException(EnsuranceException::class);
+        $this->expectExceptionMessage('Decode non-error in JSendError');
+        $response->intoError();
+    }
+
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     */
     public function testErrorResponse(): void
     {
         $json = '{
@@ -160,29 +209,38 @@ final class JSendBasicTest extends TestCase
         }';
 
         $response = JSend::decode($json);
-        $this->assertTrue($response->getStatus()->isError());
-        $this->assertEquals('Unable to communicate with database', $response->getError()->getMessage());
+        $this->assertTrue($response->isError());
+        $this->assertEquals('Unable to communicate with database', $response->intoError()->getMessage());
         $this->assertJsonStringEqualsJsonString($json, json_encode($response));
     }
 
+    /**
+     *
+     */
     public function testSuccess(): void
     {
         $this->assertTrue(Status::success()->isSuccess());
         $json = '{"status": "success", "data": null}';
-        $this->assertJsonStringEqualsJsonString($json, JSend::success(['data' => null]));
+        $this->assertJsonStringEqualsJsonString($json, JSend::success()->encode());
     }
 
+    /**
+     *
+     */
     public function testFail(): void
     {
         $this->assertTrue(Status::fail()->isFail());
         $json = '{"status": "fail", "data": null}';
-        $this->assertJsonStringEqualsJsonString($json, JSend::fail(['data' => null]));
+        $this->assertJsonStringEqualsJsonString($json, JSend::fail()->encode());
     }
 
+    /**
+     *
+     */
     public function testError(): void
     {
         $this->assertTrue(Status::error()->isError());
-        $json = '{"status": "error", "message": ""}';
-        $this->assertJsonStringEqualsJsonString($json, JSend::error(['message' => '']));
+        $json = '{"message": "", "code": null, "status": "error"}';
+        $this->assertJsonStringEqualsJsonString($json, JSend::error('')->encode());
     }
 }

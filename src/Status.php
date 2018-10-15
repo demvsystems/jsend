@@ -8,19 +8,16 @@ use function Dgame\Ensurance\ensure;
  * Class Status
  * @package Demv\JSend
  */
-final class Status implements StatusInterface
+final class Status
 {
-    public const DEFAULT_MAPPING = [
-        -1 => self::STATUS_ERROR,
-        0  => self::STATUS_FAIL,
-        1  => self::STATUS_SUCCESS
-    ];
+    private const SUCCESS = 'success';
+    private const FAIL    = 'fail';
+    private const ERROR   = 'error';
 
     /**
-     * @var StatusInterface[]
+     * @var self[]
      */
-    private static $instances = [];
-
+    private static $froms = [];
     /**
      * @var string
      */
@@ -39,56 +36,40 @@ final class Status implements StatusInterface
     /**
      * @param string $status
      *
-     * @return StatusInterface
+     * @return self
      */
-    public static function instance(string $status): StatusInterface
+    public static function from(string $status): self
     {
-        ensure($status)->isIn([self::STATUS_SUCCESS, self::STATUS_FAIL, self::STATUS_ERROR])
-                       ->orThrow('Expected valid status');
-        if (!array_key_exists($status, self::$instances)) {
-            self::$instances[$status] = new self($status);
+        ensure($status)->isIn([self::SUCCESS, self::FAIL, self::ERROR])->orThrow('Expected valid status');
+        if (!array_key_exists($status, self::$froms)) {
+            self::$froms[$status] = new self($status);
         }
 
-        return self::$instances[$status];
+        return self::$froms[$status];
     }
 
     /**
-     * @return StatusInterface
+     * @return self
      */
-    public static function success(): StatusInterface
+    public static function success(): self
     {
-        return self::instance(self::STATUS_SUCCESS);
+        return self::from(self::SUCCESS);
     }
 
     /**
-     * @return StatusInterface
+     * @return self
      */
-    public static function fail(): StatusInterface
+    public static function fail(): self
     {
-        return self::instance(self::STATUS_FAIL);
+        return self::from(self::FAIL);
     }
 
     /**
-     * @return StatusInterface
+     * @return self
      */
-    public static function error(): StatusInterface
+    public static function error(): self
     {
-        return self::instance(self::STATUS_ERROR);
-    }
-
-    /**
-     * @param int   $value
-     * @param array $mapping
-     *
-     * @return StatusInterface
-     */
-    public static function translate(int $value, array $mapping = self::DEFAULT_MAPPING): StatusInterface
-    {
-        ensure($value)->isKeyOf($mapping)->orThrow('Cannot map %d, there is not mapping available', $value);
-        $status = $mapping[$value];
-        ensure($status)->isNotEmpty()->isString()->orThrow('Status must be string');
-
-        return self::instance($status);
+        return self::from(self::ERROR);
     }
 
     /**
@@ -96,7 +77,7 @@ final class Status implements StatusInterface
      */
     public function isFail(): bool
     {
-        return $this->status === self::STATUS_FAIL;
+        return $this->status === self::FAIL;
     }
 
     /**
@@ -104,7 +85,7 @@ final class Status implements StatusInterface
      */
     public function isSuccess(): bool
     {
-        return $this->status === self::STATUS_SUCCESS;
+        return $this->status === self::SUCCESS;
     }
 
     /**
@@ -112,7 +93,7 @@ final class Status implements StatusInterface
      */
     public function isError(): bool
     {
-        return $this->status === self::STATUS_ERROR;
+        return $this->status === self::ERROR;
     }
 
     /**

@@ -3,62 +3,49 @@
 namespace Demv\JSend\Test;
 
 use Demv\JSend\JSend;
-use Demv\JSend\JSendResponse;
-use Demv\JSend\ResponseFactory;
-use Demv\JSend\Status;
-use Demv\JSend\StatusInterface;
+use Demv\JSend\JSendError;
 use PHPUnit\Framework\TestCase;
 
 final class ResponseTest extends TestCase
 {
-    public function testDefaultHttpStatusCode(): void
-    {
-        $this->assertEquals(
-            200,
-            JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->success())
-        );
-        $this->assertEquals(
-            200,
-            JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->fail())
-        );
-        $this->assertEquals(
-            500,
-            JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf']))
-        );
-        $this->assertEquals(
-            400,
-            JSend::getDefaultHttpStatusCode(ResponseFactory::instance()->error(['message' => 'wtf', 'code' => 400]))
-        );
-    }
-
+    /**
+     * @throws \Dgame\Ensurance\Exception\EnsuranceException
+     */
     public function testSuccessFactory(): void
     {
-        $response = JSendResponse::success(['Erfolgreich!']);
+        $jsend = JSend::success(['Erfolgreich!']);
 
-        $this->assertTrue($response->getStatus()->isSuccess());
-        $this->assertEquals(['Erfolgreich!'], $response->getData());
+        $this->assertTrue($jsend->isSuccess());
+        $this->assertEquals(['Erfolgreich!'], $jsend->getData());
     }
 
+    /**
+     * @throws \Dgame\Ensurance\Exception\EnsuranceException
+     */
     public function testFailFactory(): void
     {
-        $response = JSendResponse::fail(['Irgendwas lief schief']);
+        $jsend = JSend::fail(['Irgendwas lief schief']);
 
-        $this->assertTrue($response->getStatus()->isFail());
-        $this->assertEquals(['Irgendwas lief schief'], $response->getData());
+        $this->assertTrue($jsend->isFail());
+        $this->assertEquals(['Irgendwas lief schief'], $jsend->getData());
     }
 
     public function testErrorFactory(): void
     {
-        $response = JSendResponse::error('Es ist ein Fehler aufgetreten');
+        $jsend = JSend::error('Es ist ein Fehler aufgetreten');
 
-        $this->assertTrue($response->getStatus()->isError());
-        $this->assertEmpty($response->getData());
+        $this->assertTrue($jsend->isError());
+        $this->assertEmpty($jsend->intoError()->getData());
         $this->assertEquals(
             'Es ist ein Fehler aufgetreten',
-            $response->getError()->getMessage()
+            $jsend->intoError()->getMessage()
         );
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     * @throws \Dgame\Ensurance\Exception\EnsuranceException
+     */
     public function testSuccessConversion(): void
     {
         $json = '{"status": "success", "data": ["Holy", "Moly"]}';
@@ -67,26 +54,34 @@ final class ResponseTest extends TestCase
         $success->withBody(new DummyStream($json));
         $success->withStatus(214);
 
-        $response = ResponseFactory::instance()->convert($success);
-        $this->assertTrue($response->getStatus()->isSuccess());
-        $this->assertEquals(['Holy', 'Moly'], $response->getData());
-        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+        $jsend = JSend::translate($success);
+        $this->assertTrue($jsend->getStatus()->isSuccess());
+        $this->assertEquals(['Holy', 'Moly'], $jsend->getData());
+        $this->assertJsonStringEqualsJsonString($json, json_encode($jsend));
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     * @throws \Dgame\Ensurance\Exception\EnsuranceException
+     */
     public function testFailConversion(): void
     {
         $fail = new DummyResponse();
         $fail->withBody(new DummyStream('{"status": "fail", "data": null}'));
 
-        $response = ResponseFactory::instance()->convert($fail);
-        $this->assertTrue($response->getStatus()->isFail());
-        $this->assertEmpty($response->getData());
-        $this->assertJsonStringEqualsJsonString('{"status": "fail", "data": null}', json_encode($response));
+        $jsend = JSend::translate($fail);
+        $this->assertTrue($jsend->getStatus()->isFail());
+        $this->assertEmpty($jsend->getData());
+        $this->assertJsonStringEqualsJsonString('{"status": "fail", "data": null}', json_encode($jsend));
     }
 
+    /**
+     * @throws \Demv\JSend\InvalidJsonException
+     * @throws \Dgame\Ensurance\Exception\EnsuranceException
+     */
     public function testErrorConversion(): void
     {
-        $json = '{"status": "error", "data": ["Invalid"], "message": "Something is not right..."}';
+        $json = '{"status": "error", "message": "Something is not right..."}';
 
         $error = new DummyResponse();
         $error->withBody(new DummyStream($json));
@@ -95,81 +90,67 @@ final class ResponseTest extends TestCase
         $result         = json_decode($json, true);
         $result['code'] = $error->getStatusCode();
 
-        $response = ResponseFactory::instance()->convert($error);
-        $this->assertTrue($response->getStatus()->isError());
-        $this->assertEquals(['Invalid'], $response->getData());
-        $this->assertJsonStringEqualsJsonString(json_encode($result), json_encode($response));
-        $this->assertEquals('Something is not right...', $response->getError()->getMessage());
-        $this->assertEquals($error->getStatusCode(), $response->getError()->getCode());
+        /** @var JSendError $jsend */
+        $jsend = JSend::translate($error);
+        $this->assertTrue($jsend->isError());
+        $this->assertEmpty($jsend->getData());
+        $this->assertJsonStringEqualsJsonString(json_encode($result), $jsend->encode());
+        $this->assertEquals('Something is not right...', $jsend->getMessage());
+        $this->assertEquals($error->getStatusCode(), $jsend->getCode());
     }
 
-    public function testMapping(): void
-    {
-        $response = new JSendResponse(Status::translate(1), null);
-        $this->assertTrue($response->getStatus()->isSuccess());
-
-        $response = new JSendResponse(Status::translate(0), null);
-        $this->assertTrue($response->getStatus()->isFail());
-
-        $response = new JSendResponse(Status::translate(-1), null);
-        $this->assertTrue($response->getStatus()->isError());
-
-        $response = new JSendResponse(Status::translate(true), null);
-        $this->assertTrue($response->getStatus()->isSuccess());
-
-        $response = new JSendResponse(Status::translate(false), null);
-        $this->assertTrue($response->getStatus()->isFail());
-
-        $response = new JSendResponse(Status::translate(false, [false => StatusInterface::STATUS_ERROR]), null);
-        $this->assertTrue($response->getStatus()->isError());
-    }
-
+    /**
+     * @throws \Dgame\Ensurance\Exception\EnsuranceException
+     */
     public function testPsr7Response(): void
     {
-        $response = JSendResponse::success(['Erfolgreich!'])->asResponse(200);
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('{"status":"success","data":["Erfolgreich!"]}', $response->getBody()->getContents());
+        $jsend = JSend::success(['Erfolgreich!'])->withStatus(200);
+        $this->assertEquals(200, $jsend->getStatusCode());
+        $this->assertEquals('{"status":"success","data":["Erfolgreich!"]}', $jsend->getBody()->getContents());
 
-        $response = JSendResponse::fail(['Irgendwas lief schief'])->asResponse(400);
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertEquals('{"status":"fail","data":["Irgendwas lief schief"]}', $response->getBody()->getContents());
+        $jsend = JSend::fail(['Irgendwas lief schief'])->withStatus(400);
+        $this->assertEquals(400, $jsend->getStatusCode());
+        $this->assertEquals('{"status":"fail","data":["Irgendwas lief schief"]}', $jsend->getBody()->getContents());
 
-        $response = JSendResponse::error('Es ist ein Fehler aufgetreten', 404)->asResponse(500);
-        $this->assertEquals(500, $response->getStatusCode());
+        $jsend = JSend::error('Es ist ein Fehler aufgetreten', 404)->withStatus(500);
+        $this->assertEquals(500, $jsend->getStatusCode());
         $this->assertEquals(
             '{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}',
-            $response->getBody()->getContents()
+            $jsend->getBody()->getContents()
         );
 
-        $response = JSendResponse::success(['Stimmt der Header?'])->asResponse();
-        $this->assertEquals(['application/json'], $response->getHeader('content-type'));
+        $jsend = JSend::success(['Stimmt der Header?']);
+        $this->assertEquals(['application/json'], $jsend->getHeader('content-type'));
 
-        $response = JSendResponse::success(['Eigene Header werden übernommen'])->asResponse(null, ['foo' => 'bar']);
-        $this->assertEquals(['bar'], $response->getHeader('foo'));
+        $jsend = JSend::success(['Eigene Header werden übernommen'])->withHeader('foo', 'bar');
+        $this->assertEquals(['bar'], $jsend->getHeader('foo'));
     }
 
+    /**
+     * @throws \Dgame\Ensurance\Exception\EnsuranceException
+     */
     public function testPsr7ResponseOptionalCode(): void
     {
-        $response = JSendResponse::success(['Erfolgreich!'])->asResponse();
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('{"status":"success","data":["Erfolgreich!"]}', $response->getBody()->getContents());
+        $jsend = JSend::success(['Erfolgreich!']);
+        $this->assertEquals(200, $jsend->getStatusCode());
+        $this->assertEquals('{"status":"success","data":["Erfolgreich!"]}', $jsend->getBody()->getContents());
 
-        $response = JSendResponse::fail(['Irgendwas lief schief'])->asResponse();
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('{"status":"fail","data":["Irgendwas lief schief"]}', $response->getBody()->getContents());
+        $jsend = JSend::fail(['Irgendwas lief schief']);
+        $this->assertEquals(200, $jsend->getStatusCode());
+        $this->assertEquals('{"status":"fail","data":["Irgendwas lief schief"]}', $jsend->getBody()->getContents());
 
-        $response = JSendResponse::error('Es ist ein Fehler aufgetreten', 404)->asResponse();
-        $this->assertEquals(404, $response->getStatusCode());
+        $jsend = JSend::error('Es ist ein Fehler aufgetreten', 404);
+        $this->assertEquals(404, $jsend->getStatusCode());
         $this->assertEquals(
             '{"status":"error","message":"Es ist ein Fehler aufgetreten","code":404}',
-            $response->getBody()->getContents()
+            $jsend->getBody()->getContents()
         );
 
-        $response = JSendResponse::error('Es ist ein Fehler aufgetreten')->asResponse();
-        $this->assertEquals(500, $response->getStatusCode());
+        $jsend = JSend::error('Es ist ein Fehler aufgetreten');
+        $this->assertEquals(500, $jsend->getStatusCode());
         $this->assertEquals(
             '{"status":"error","message":"Es ist ein Fehler aufgetreten"}',
-            $response->getBody()->getContents()
+            $jsend->getBody()->getContents()
         );
     }
 }

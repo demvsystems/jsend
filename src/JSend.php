@@ -2,113 +2,421 @@
 
 namespace Demv\JSend;
 
-use Seld\JsonLint\JsonParser;
-use Seld\JsonLint\ParsingException;
-use function Dgame\Ensurance\ensure;
+use Dgame\Ensurance\Exception\EnsuranceException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
+use function Dgame\Extraction\export;
 
 /**
  * Class JSend
  * @package Demv\JSend
  */
-final class JSend
+final class JSend implements JSendInterface
 {
+    use JSendStatusTrait;
+    use JSendJsonTrait;
+
     /**
-     * @param array $response
-     *
-     * @return JSendResponseInterface
+     * @var array
      */
-    public static function interpret(array $response): JSendResponseInterface
+    private $decoded = [];
+    /**
+     * @var JSendInterface
+     */
+    private $jsend;
+
+    /**
+     * JSend constructor.
+     *
+     * @param Status $status
+     * @param array  $decoded
+     */
+    public function __construct(Status $status, array $decoded)
     {
-        ensure($response)->isArray()->hasKey(StatusInterface::KEY)->orThrow('Key "status" is required');
-
-        $status = Status::instance($response[StatusInterface::KEY]);
-        if ($status->isSuccess() || $status->isFail()) {
-            ensure($response)->isArray()->hasKey('data')->orThrow('Key "data" is required');
-
-            return new JSendResponse($status, $response['data']);
+        if (!array_key_exists('status', $decoded)) {
+            $decoded['status'] = (string) $status;
         }
 
-        return new JSendErrorResponse($status, $response);
+        $this->status  = $status;
+        $this->decoded = $decoded;
     }
 
     /**
      * @param string $json
      *
-     * @return JSendResponseInterface
-     * @throws ParsingException
+     * @return array
+     * @throws InvalidJsonException
      */
-    public static function decode(string $json): JSendResponseInterface
+    public static function safeDecode(string $json): array
     {
-        $parser = new JsonParser();
-        $result = $parser->parse($json, JsonParser::PARSE_TO_ASSOC | JsonParser::DETECT_KEY_CONFLICTS);
-
-        return self::interpret($result);
-    }
-
-    /**
-     * @param array $response
-     *
-     * @return string
-     */
-    public static function encode(array $response): string
-    {
-        ensure($response)->isNotEmpty()->orThrow('Empty response cannot be converted to valid JSend-JSON');
-        ensure($response)->isArray()->hasKey(StatusInterface::KEY)->orThrow('Key "status" is required');
-        $status = Status::instance($response[StatusInterface::KEY]);
-        if ($status->isError()) {
-            ensure($response)->isArray()->hasKey('message')->orThrow('Need a descriptive error-message');
+        $decoded = json_decode($json, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidJsonException(json_last_error_msg());
         }
 
-        return json_encode($response);
+        return $decoded;
     }
 
     /**
-     * @param array $response
+     * @param string $json
      *
-     * @return string
+     * @return JSend
+     * @throws InvalidJsonException
      */
-    public static function success(array $response): string
+    public static function decode(string $json): self
     {
-        $response[StatusInterface::KEY] = StatusInterface::STATUS_SUCCESS;
+        $decoded = self::safeDecode($json);
 
-        return self::encode($response);
+        return self::from($decoded);
     }
 
     /**
-     * @param array $response
+     * @param array $decoded
      *
-     * @return string
+     * @return JSend
      */
-    public static function fail(array $response): string
+    public static function from(array $decoded): self
     {
-        $response[StatusInterface::KEY] = StatusInterface::STATUS_FAIL;
+        ['status' => $status] = export('status')->requireAll()->from($decoded);
 
-        return self::encode($response);
+        return new self(Status::from($status), $decoded);
     }
 
     /**
-     * @param array $response
+     * @param ResponseInterface $response
      *
-     * @return string
+     * @return JSendInterface
+     * @throws EnsuranceException
+     * @throws InvalidJsonException
      */
-    public static function error(array $response): string
+    public static function translate(ResponseInterface $response): JSendInterface
     {
-        $response[StatusInterface::KEY] = StatusInterface::STATUS_ERROR;
+        $body = $response->getBody();
 
-        return self::encode($response);
+        return self::decode($body)->withStatus($response->getStatusCode());
     }
 
     /**
-     * @param JSendResponseInterface $response
+     * @param array|null $data
      *
+     * @return JSend
+     */
+    public static function success(array $data = null): self
+    {
+        return new self(Status::success(), ['data' => $data]);
+    }
+
+    /**
+     * @param array|null $data
+     *
+     * @return JSend
+     */
+    public static function fail(array $data = null): self
+    {
+        return new self(Status::fail(), ['data' => $data]);
+    }
+
+    /**
+     * @param string   $message
+     * @param int|null $code
+     *
+     * @return JSend
+     */
+    public static function error(string $message, int $code = null): self
+    {
+        return new self(Status::error(), ['message' => $message, 'code' => $code]);
+    }
+
+    /**
+     * @return array
+     */
+    public function asArray(): array
+    {
+        return $this->decoded;
+    }
+
+    /**
+     * @param callable $closure
+     *
+     * @return bool
+     */
+    public function onSuccess(callable $closure): bool
+    {
+        if ($this->isSuccess()) {
+            $closure($this->intoSuccess());
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param callable $closure
+     *
+     * @return bool
+     */
+    public function onFail(callable $closure): bool
+    {
+        if ($this->isFail()) {
+            $closure($this->intoFail());
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param callable $closure
+     *
+     * @return bool
+     */
+    public function onError(callable $closure): bool
+    {
+        if ($this->isError()) {
+            $closure($this->intoError());
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return JSendInterface
+     * @throws EnsuranceException
+     */
+    public function into(): JSendInterface
+    {
+        if ($this->isSuccess()) {
+            return $this->intoSuccess();
+        }
+
+        if ($this->isFail()) {
+            return $this->intoFail();
+        }
+
+        if ($this->isError()) {
+            return $this->intoError();
+        }
+
+        throw new EnsuranceException('Neither success, fail or error');
+    }
+
+    /**
+     * @return JSendSuccess
+     */
+    public function intoSuccess(): JSendSuccess
+    {
+        if ($this->jsend === null || !$this->jsend->isSuccess()) {
+            $this->jsend = JSendSuccess::from($this->decoded);
+        }
+
+        return $this->jsend;
+    }
+
+    /**
+     * @return JSendFail
+     */
+    public function intoFail(): JSendFail
+    {
+        if ($this->jsend === null || !$this->jsend->isFail()) {
+            $this->jsend = JSendFail::from($this->decoded);
+        }
+
+        return $this->jsend;
+    }
+
+    /**
+     * @return JSendError
+     */
+    public function intoError(): JSendError
+    {
+        if ($this->jsend === null || !$this->jsend->isError()) {
+            $this->jsend = JSendError::from($this->decoded);
+        }
+
+        return $this->jsend;
+    }
+
+    /**
+     * @param string|null $key
+     *
+     * @return bool
+     * @throws EnsuranceException
+     */
+    public function hasData(string $key = null): bool
+    {
+        return $this->into()->hasData($key);
+    }
+
+    /**
+     * @param string|null $key
+     * @param null        $default
+     *
+     * @return mixed
+     * @throws EnsuranceException
+     */
+    public function getData(string $key = null, $default = null)
+    {
+        return $this->into()->getData($key, $default);
+    }
+
+    /**
+     * @param int|null $code
+     *
+     * @throws EnsuranceException
+     */
+    public function respond(int $code = null): void
+    {
+        $this->into()->respond($code);
+    }
+
+    /**
      * @return int
+     * @throws EnsuranceException
      */
-    public static function getDefaultHttpStatusCode(JSendResponseInterface $response): int
+    public function getStatusCode(): int
     {
-        if ($response->getStatus()->isError()) {
-            return $response->getError()->getCode() ?? 500;
-        }
+        return $this->into()->getStatusCode();
+    }
 
-        return 200;
+    /**
+     * @return string
+     * @throws EnsuranceException
+     */
+    public function getProtocolVersion()
+    {
+        return $this->into()->getProtocolVersion();
+    }
+
+    /**
+     * @param string $version
+     *
+     * @return JSendInterface
+     * @throws EnsuranceException
+     */
+    public function withProtocolVersion($version)
+    {
+        return $this->into()->withProtocolVersion($version);
+    }
+
+    /**
+     * @return \string[][]
+     * @throws EnsuranceException
+     */
+    public function getHeaders()
+    {
+        return $this->into()->getHeaders();
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     * @throws EnsuranceException
+     */
+    public function hasHeader($name)
+    {
+        return $this->into()->hasHeader($name);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string[]
+     * @throws EnsuranceException
+     */
+    public function getHeader($name)
+    {
+        return $this->into()->getHeader($name);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     * @throws EnsuranceException
+     */
+    public function getHeaderLine($name)
+    {
+        return $this->into()->getHeaderLine($name);
+    }
+
+    /**
+     * @param string          $name
+     * @param string|string[] $value
+     *
+     * @return JSendInterface
+     * @throws EnsuranceException
+     */
+    public function withHeader($name, $value)
+    {
+        return $this->into()->withHeader($name, $value);
+    }
+
+    /**
+     * @param string          $name
+     * @param string|string[] $value
+     *
+     * @return JSendInterface
+     * @throws EnsuranceException
+     */
+    public function withAddedHeader($name, $value)
+    {
+        return $this->into()->withAddedHeader($name, $value);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return JSendInterface
+     * @throws EnsuranceException
+     */
+    public function withoutHeader($name)
+    {
+        return $this->into()->withoutHeader($name);
+    }
+
+    /**
+     * @return StreamInterface
+     * @throws EnsuranceException
+     */
+    public function getBody()
+    {
+        return $this->into()->getBody();
+    }
+
+    /**
+     * @param StreamInterface $body
+     *
+     * @return JSendInterface
+     * @throws EnsuranceException
+     */
+    public function withBody(StreamInterface $body)
+    {
+        return $this->into()->withBody($body);
+    }
+
+    /**
+     * @param int    $code
+     * @param string $reasonPhrase
+     *
+     * @return JSendInterface
+     * @throws EnsuranceException
+     */
+    public function withStatus($code, $reasonPhrase = '')
+    {
+        return $this->into()->withStatus($code, $reasonPhrase);
+    }
+
+    /**
+     * @return string
+     * @throws EnsuranceException
+     */
+    public function getReasonPhrase()
+    {
+        return $this->into()->getReasonPhrase();
     }
 }
