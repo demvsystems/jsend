@@ -136,7 +136,7 @@ final class ResponseTest extends TestCase
         $this->assertEquals('{"status":"success","data":["Erfolgreich!"]}', $jsend->getBody()->getContents());
 
         $jsend = JSend::fail(['Irgendwas lief schief']);
-        $this->assertEquals(200, $jsend->getStatusCode());
+        $this->assertEquals(400, $jsend->getStatusCode());
         $this->assertEquals('{"status":"fail","data":["Irgendwas lief schief"]}', $jsend->getBody()->getContents());
 
         $jsend = JSend::error('Es ist ein Fehler aufgetreten', 404);
