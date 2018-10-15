@@ -91,9 +91,14 @@ final class JSend implements JSendInterface
      */
     public static function translate(ResponseInterface $response): JSendInterface
     {
-        $body = $response->getBody();
+        $code    = $response->getStatusCode();
+        $body    = $response->getBody();
+        $decoded = self::safeDecode($body);
+        if (!array_key_exists('status', $decoded)) {
+            $decoded['status'] = Status::fromStatusCode($code);
+        }
 
-        return self::decode($body)->withStatus($response->getStatusCode());
+        return self::decode($body)->withStatus($code);
     }
 
     /**
@@ -238,6 +243,15 @@ final class JSend implements JSendInterface
         }
 
         return $this->jsend;
+    }
+
+    /**
+     * @return int
+     * @throws EnsuranceException
+     */
+    public function getDefaultHttpStatusCode(): int
+    {
+        return $this->into()->getDefaultHttpStatusCode();
     }
 
     /**

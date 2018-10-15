@@ -56,17 +56,8 @@ trait JSendResponseTrait
      */
     public function withStatus($code, $reasonPhrase = '')
     {
-        $decoded = $this->asArray();
-        switch (true) {
-            case $code >= 200 && $code < 300:
-                $decoded['status'] = 'success';
-                break;
-            case $code < 500:
-                $decoded['status'] = 'fail';
-                break;
-            default:
-                $decoded['status'] = 'error';
-        }
+        $decoded           = $this->asArray();
+        $decoded['status'] = (string) Status::fromStatusCode($code ?? $this->getDefaultHttpStatusCode());
 
         $jsend       = JSend::from($decoded)->into();
         $jsend->code = $code;

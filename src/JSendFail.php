@@ -31,6 +31,14 @@ final class JSendFail implements JSendInterface
     }
 
     /**
+     * @return int
+     */
+    public function getDefaultHttpStatusCode(): int
+    {
+        return 400;
+    }
+
+    /**
      * @return array
      */
     public function asArray(): array

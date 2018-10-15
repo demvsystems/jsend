@@ -32,6 +32,14 @@ final class JSendError implements JSendInterface
     }
 
     /**
+     * @return int
+     */
+    public function getDefaultHttpStatusCode(): int
+    {
+        return 500;
+    }
+
+    /**
      * @return int|null
      */
     public function getCode(): ?int

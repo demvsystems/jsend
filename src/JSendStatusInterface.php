@@ -14,6 +14,11 @@ interface JSendStatusInterface
     public function getStatus(): Status;
 
     /**
+     * @return int
+     */
+    public function getDefaultHttpStatusCode(): int;
+
+    /**
      * @return bool
      */
     public function isFail(): bool;

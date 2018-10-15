@@ -31,6 +31,14 @@ final class JSendSuccess implements JSendInterface
     }
 
     /**
+     * @return int
+     */
+    public function getDefaultHttpStatusCode(): int
+    {
+        return 200;
+    }
+
+    /**
      * @return array
      */
     public function asArray(): array

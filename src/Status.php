@@ -40,12 +40,35 @@ final class Status
      */
     public static function from(string $status): self
     {
+        if (is_numeric($status)) {
+            return self::fromStatusCode($status);
+        }
+
         ensure($status)->isIn([self::SUCCESS, self::FAIL, self::ERROR])->orThrow('Expected valid status');
         if (!array_key_exists($status, self::$froms)) {
             self::$froms[$status] = new self($status);
         }
 
         return self::$froms[$status];
+    }
+
+    /**
+     * @param int $code
+     *
+     * @return Status
+     */
+    public static function fromStatusCode(int $code): self
+    {
+        ensure($code)->isBetween(100, 511)->orThrow('Invalid Http-Status-Code: %d', $code);
+
+        switch (true) {
+            case $code >= 200 && $code < 300:
+                return Status::success();
+            case $code < 500:
+                return Status::fail();
+            default:
+                return Status::error();
+        }
     }
 
     /**
