@@ -3,7 +3,6 @@
 namespace Demv\JSend;
 
 use Psr\Http\Message\ResponseInterface;
-use Seld\JsonLint\JsonParser;
 
 /**
  * Class ResponseFactory
@@ -39,14 +38,10 @@ final class ResponseFactory
      * @param ResponseInterface $response
      *
      * @return JSendResponseInterface
-     * @throws \Seld\JsonLint\ParsingException
      */
     public function convert(ResponseInterface $response): JSendResponseInterface
     {
-        $content = $response->getBody()->getContents();
-
-        $parser         = new JsonParser();
-        $result         = $parser->parse($content, JsonParser::PARSE_TO_ASSOC | JsonParser::DETECT_KEY_CONFLICTS);
+        $result         = Json::decode($response->getBody()->getContents());
         $result['code'] = $response->getStatusCode();
 
         return JSend::interpret($result);

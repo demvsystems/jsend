@@ -2,9 +2,9 @@
 
 namespace Demv\JSend;
 
-use Seld\JsonLint\JsonParser;
-use Seld\JsonLint\ParsingException;
+use InvalidArgumentException;
 use function Dgame\Ensurance\ensure;
+use function json_decode;
 
 /**
  * Class JSend
@@ -35,14 +35,10 @@ final class JSend
      * @param string $json
      *
      * @return JSendResponseInterface
-     * @throws ParsingException
      */
     public static function decode(string $json): JSendResponseInterface
     {
-        $parser = new JsonParser();
-        $result = $parser->parse($json, JsonParser::PARSE_TO_ASSOC | JsonParser::DETECT_KEY_CONFLICTS);
-
-        return self::interpret($result);
+        return self::interpret(Json::decode($json));
     }
 
     /**
