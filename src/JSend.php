@@ -2,9 +2,7 @@
 
 namespace Demv\JSend;
 
-use InvalidArgumentException;
 use function Dgame\Ensurance\ensure;
-use function json_decode;
 
 /**
  * Class JSend
