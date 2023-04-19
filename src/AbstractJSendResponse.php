@@ -2,9 +2,9 @@
 
 namespace Demv\JSend;
 
-use function Dgame\Ensurance\ensure;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
+use function Dgame\Ensurance\ensure;
 
 /**
  * Class AbstractJSendResponse
