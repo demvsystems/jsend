@@ -72,6 +72,8 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
 
     /**
      * @param int|null $code
+     *
+     * @return never This method calls exit() after sending its response
      */
     public function respond(int $code = null): void
     {
