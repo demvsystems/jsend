@@ -11,6 +11,14 @@ use PHPUnit\Framework\TestCase;
 
 final class ResponseTest extends TestCase
 {
+    private function safeJsonEncode(mixed $data): string
+    {
+        $encoded = json_encode($data);
+        if ($encoded === false) {
+            throw new \RuntimeException('Failed to encode JSON');
+        }
+        return $encoded;
+    }
     public function testDefaultHttpStatusCode(): void
     {
         $this->assertEquals(
@@ -70,7 +78,7 @@ final class ResponseTest extends TestCase
         $response = ResponseFactory::instance()->convert($success);
         $this->assertTrue($response->getStatus()->isSuccess());
         $this->assertEquals(['Holy', 'Moly'], $response->getData());
-        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+        $this->assertJsonStringEqualsJsonString($json, $this->safeJsonEncode($response));
     }
 
     public function testFailConversion(): void
@@ -81,7 +89,7 @@ final class ResponseTest extends TestCase
         $response = ResponseFactory::instance()->convert($fail);
         $this->assertTrue($response->getStatus()->isFail());
         $this->assertEmpty($response->getData());
-        $this->assertJsonStringEqualsJsonString('{"status": "fail", "data": null}', json_encode($response));
+        $this->assertJsonStringEqualsJsonString('{"status": "fail", "data": null}', $this->safeJsonEncode($response));
     }
 
     public function testErrorConversion(): void
@@ -98,7 +106,7 @@ final class ResponseTest extends TestCase
         $response = ResponseFactory::instance()->convert($error);
         $this->assertTrue($response->getStatus()->isError());
         $this->assertEquals(['Invalid'], $response->getData());
-        $this->assertJsonStringEqualsJsonString(json_encode($result), json_encode($response));
+        $this->assertJsonStringEqualsJsonString($this->safeJsonEncode($result), $this->safeJsonEncode($response));
         $this->assertEquals('Something is not right...', $response->getError()->getMessage());
         $this->assertEquals($error->getStatusCode(), $response->getError()->getCode());
     }

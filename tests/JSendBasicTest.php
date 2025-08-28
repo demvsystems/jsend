@@ -10,6 +10,14 @@ use PHPUnit\Framework\TestCase;
 
 final class JSendBasicTest extends TestCase
 {
+    private function safeJsonEncode(mixed $data): string
+    {
+        $encoded = json_encode($data);
+        if ($encoded === false) {
+            throw new \RuntimeException('Failed to encode JSON');
+        }
+        return $encoded;
+    }
     public function testEncodeSuccess(): void
     {
         $json = '{
@@ -102,7 +110,7 @@ final class JSendBasicTest extends TestCase
             ],
             $response->getData()
         );
-        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+        $this->assertJsonStringEqualsJsonString($json, $this->safeJsonEncode($response));
     }
 
     public function testSuccessResponseWithoutData(): void
@@ -119,7 +127,7 @@ final class JSendBasicTest extends TestCase
         $response = JSend::decode($json);
         $this->assertTrue($response->getStatus()->isSuccess());
         $this->assertEmpty($response->getData());
-        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+        $this->assertJsonStringEqualsJsonString($json, $this->safeJsonEncode($response));
     }
 
     public function testSuccessResponseWithEmptyData(): void
@@ -128,7 +136,7 @@ final class JSendBasicTest extends TestCase
         $response = JSend::decode($json);
         $this->assertTrue($response->getStatus()->isSuccess());
         $this->assertEmpty($response->getData());
-        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+        $this->assertJsonStringEqualsJsonString($json, $this->safeJsonEncode($response));
     }
 
     public function testFailResponse(): void
@@ -141,7 +149,7 @@ final class JSendBasicTest extends TestCase
         $response = JSend::decode($json);
         $this->assertTrue($response->getStatus()->isFail());
         $this->assertEquals(['title' => 'A title is required'], $response->getData());
-        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+        $this->assertJsonStringEqualsJsonString($json, $this->safeJsonEncode($response));
     }
 
     public function testGetErrorOnNoneError(): void
@@ -162,7 +170,7 @@ final class JSendBasicTest extends TestCase
         $response = JSend::decode($json);
         $this->assertTrue($response->getStatus()->isError());
         $this->assertEquals('Unable to communicate with database', $response->getError()->getMessage());
-        $this->assertJsonStringEqualsJsonString($json, json_encode($response));
+        $this->assertJsonStringEqualsJsonString($json, $this->safeJsonEncode($response));
     }
 
     public function testSuccess(): void

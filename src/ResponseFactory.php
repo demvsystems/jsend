@@ -4,10 +4,6 @@ namespace Demv\JSend;
 
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * Class ResponseFactory
- * @package Demv\JSend
- */
 final class ResponseFactory
 {
     /**
@@ -15,16 +11,8 @@ final class ResponseFactory
      */
     private static $instance;
 
-    /**
-     * ResponseFactory constructor.
-     */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
-    /**
-     * @return ResponseFactory
-     */
     public static function instance(): self
     {
         if (self::$instance === null) {
@@ -34,11 +22,6 @@ final class ResponseFactory
         return self::$instance;
     }
 
-    /**
-     * @param ResponseInterface $response
-     *
-     * @return JSendResponseInterface
-     */
     public function convert(ResponseInterface $response): JSendResponseInterface
     {
         $result         = Json::decode($response->getBody()->getContents());
@@ -48,32 +31,26 @@ final class ResponseFactory
     }
 
     /**
-     * @param array|null $data
-     *
-     * @return JSendResponseInterface
+     * @param array<string, mixed>|null $data
      */
-    public function success(array $data = null): JSendResponseInterface
+    public function success(?array $data = null): JSendResponseInterface
     {
         return new JSendResponse(Status::success(), $data);
     }
 
     /**
-     * @param array|null $data
-     *
-     * @return JSendResponseInterface
+     * @param array<string, mixed>|null $data
      */
-    public function fail(array $data = null): JSendResponseInterface
+    public function fail(?array $data = null): JSendResponseInterface
     {
         return new JSendResponse(Status::fail(), $data);
     }
 
     /**
-     * @param array    $response
+     * @param array<string, mixed> $response
      * @param int|null $code
-     *
-     * @return JSendResponseInterface
      */
-    public function error(array $response, int $code = null): JSendResponseInterface
+    public function error(array $response, ?int $code = null): JSendResponseInterface
     {
         if ($code !== null || !array_key_exists('code', $response)) {
             $response['code'] = $code;

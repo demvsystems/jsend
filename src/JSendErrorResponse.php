@@ -2,33 +2,17 @@
 
 namespace Demv\JSend;
 
-/**
- * Class JSendErrorResponse
- * @package Demv\JSend
- */
-
 use function Dgame\Ensurance\ensure;
 
-/**
- * Class JSendErrorResponse
- * @package Demv\JSend
- */
 final class JSendErrorResponse extends AbstractJSendResponse implements JSendErrorResponseInterface
 {
-    /**
-     * @var string
-     */
-    private $message;
-    /**
-     * @var int|null
-     */
-    private $code;
+    private string $message;
+
+    private ?int $code;
 
     /**
-     * JSendErrorResponse constructor.
-     *
      * @param StatusInterface $status
-     * @param array           $response
+     * @param array<string, mixed> $response
      */
     public function __construct(StatusInterface $status, array $response)
     {
@@ -42,24 +26,18 @@ final class JSendErrorResponse extends AbstractJSendResponse implements JSendErr
         $this->code    = $response['code'] ?? null;
     }
 
-    /**
-     * @return int|null
-     */
     public function getCode(): ?int
     {
         return $this->code;
     }
 
-    /**
-     * @return string
-     */
     public function getMessage(): string
     {
         return $this->message;
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function asArray(): array
     {
@@ -74,9 +52,6 @@ final class JSendErrorResponse extends AbstractJSendResponse implements JSendErr
         );
     }
 
-    /**
-     * @return JSendErrorResponseInterface
-     */
     public function getError(): JSendErrorResponseInterface
     {
         return $this;

@@ -11,9 +11,7 @@ use function Dgame\Ensurance\ensure;
 final class JSend
 {
     /**
-     * @param array $response
-     *
-     * @return JSendResponseInterface
+     * @param array<string, mixed> $response
      */
     public static function interpret(array $response): JSendResponseInterface
     {
@@ -29,20 +27,13 @@ final class JSend
         return new JSendErrorResponse($status, $response);
     }
 
-    /**
-     * @param string $json
-     *
-     * @return JSendResponseInterface
-     */
     public static function decode(string $json): JSendResponseInterface
     {
         return self::interpret(Json::decode($json));
     }
 
     /**
-     * @param array $response
-     *
-     * @return string
+     * @param array<string, mixed> $response
      */
     public static function encode(array $response): string
     {
@@ -53,13 +44,15 @@ final class JSend
             ensure($response)->isArray()->hasKey('message')->orThrow('Need a descriptive error-message');
         }
 
-        return json_encode($response);
+        $encoded = json_encode($response);
+        if ($encoded === false) {
+            throw new \RuntimeException('Failed to encode JSON');
+        }
+        return $encoded;
     }
 
     /**
-     * @param array $response
-     *
-     * @return string
+     * @param array<string, mixed> $response
      */
     public static function success(array $response): string
     {
@@ -69,9 +62,7 @@ final class JSend
     }
 
     /**
-     * @param array $response
-     *
-     * @return string
+     * @param array<string, mixed> $response
      */
     public static function fail(array $response): string
     {
@@ -81,9 +72,7 @@ final class JSend
     }
 
     /**
-     * @param array $response
-     *
-     * @return string
+     * @param array<string, mixed> $response
      */
     public static function error(array $response): string
     {
@@ -92,11 +81,6 @@ final class JSend
         return self::encode($response);
     }
 
-    /**
-     * @param JSendResponseInterface $response
-     *
-     * @return int
-     */
     public static function getDefaultHttpStatusCode(JSendResponseInterface $response): int
     {
         if ($response->getStatus()->isError()) {

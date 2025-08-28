@@ -5,25 +5,15 @@ namespace Demv\JSend;
 use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * Interface JSendResponseInterface
- * @package Demv\JSend
- */
 interface JSendResponseInterface extends JsonSerializable
 {
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function getData(): array;
 
-    /**
-     * @return StatusInterface
-     */
     public function getStatus(): StatusInterface;
 
-    /**
-     * @return JSendErrorResponseInterface
-     */
     public function getError(): JSendErrorResponseInterface;
 
     /**
@@ -31,13 +21,11 @@ interface JSendResponseInterface extends JsonSerializable
      *
      * @return never This method calls exit() after sending its response
      */
-    public function respond(int $code = null): void;
+    public function respond(?int $code = null): void;
 
     /**
      * @param int|null $code
-     * @param array    $headers
-     *
-     * @return ResponseInterface
+     * @param array<string, string|string[]> $headers
      */
-    public function asResponse(int $code = null, array $headers = []): ResponseInterface;
+    public function asResponse(?int $code = null, array $headers = []): ResponseInterface;
 }
