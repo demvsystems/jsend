@@ -16,8 +16,10 @@ final class JSendBasicTest extends TestCase
         if ($encoded === false) {
             throw new \RuntimeException('Failed to encode JSON');
         }
+
         return $encoded;
     }
+
     public function testEncodeSuccess(): void
     {
         $json = '{

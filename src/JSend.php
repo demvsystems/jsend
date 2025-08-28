@@ -48,6 +48,7 @@ final class JSend
         if ($encoded === false) {
             throw new \RuntimeException('Failed to encode JSON');
         }
+
         return $encoded;
     }
 

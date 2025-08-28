@@ -12,7 +12,7 @@ use Psr\Http\Message\StreamInterface;
 final class DummyResponse implements ResponseInterface
 {
     private ?StreamInterface $body = null;
-    private ?int $code = null;
+    private ?int $code             = null;
 
     public function getProtocolVersion(): string
     {
@@ -64,12 +64,14 @@ final class DummyResponse implements ResponseInterface
         if ($this->body === null) {
             return new DummyStream('');
         }
+
         return $this->body;
     }
 
     public function withBody(StreamInterface $body): ResponseInterface
     {
         $this->body = $body;
+
         return $this;
     }
 
@@ -81,6 +83,7 @@ final class DummyResponse implements ResponseInterface
     public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
     {
         $this->code = $code;
+
         return $this;
     }
 

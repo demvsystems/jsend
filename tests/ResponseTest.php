@@ -17,8 +17,10 @@ final class ResponseTest extends TestCase
         if ($encoded === false) {
             throw new \RuntimeException('Failed to encode JSON');
         }
+
         return $encoded;
     }
+
     public function testDefaultHttpStatusCode(): void
     {
         $this->assertEquals(

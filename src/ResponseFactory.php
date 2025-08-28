@@ -11,7 +11,9 @@ final class ResponseFactory
      */
     private static $instance;
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     public static function instance(): self
     {
