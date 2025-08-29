@@ -11,75 +11,84 @@ use Psr\Http\Message\StreamInterface;
  */
 final class DummyResponse implements ResponseInterface
 {
-    private $body;
-    private $code;
+    private ?StreamInterface $body = null;
+    private ?int $code             = null;
 
-    public function getProtocolVersion(): void
+    public function getProtocolVersion(): string
     {
-        // TODO: Implement getProtocolVersion() method.
+        return '1.1';
     }
 
-    public function withProtocolVersion($version): void
+    public function withProtocolVersion(string $version): ResponseInterface
     {
-        // TODO: Implement withProtocolVersion() method.
+        return $this;
     }
 
-    public function getHeaders(): void
+    public function getHeaders(): array
     {
-        // TODO: Implement getHeaders() method.
+        return [];
     }
 
-    public function hasHeader($name): void
+    public function hasHeader(string $name): bool
     {
-        // TODO: Implement hasHeader() method.
+        return false;
     }
 
-    public function getHeader($name): void
+    public function getHeader(string $name): array
     {
-        // TODO: Implement getHeader() method.
+        return [];
     }
 
-    public function getHeaderLine($name): void
+    public function getHeaderLine(string $name): string
     {
-        // TODO: Implement getHeaderLine() method.
+        return '';
     }
 
-    public function withHeader($name, $value): void
+    public function withHeader(string $name, $value): ResponseInterface
     {
-        // TODO: Implement withHeader() method.
+        return $this;
     }
 
-    public function withAddedHeader($name, $value): void
+    public function withAddedHeader(string $name, $value): ResponseInterface
     {
-        // TODO: Implement withAddedHeader() method.
+        return $this;
     }
 
-    public function withoutHeader($name): void
+    public function withoutHeader(string $name): ResponseInterface
     {
-        // TODO: Implement withoutHeader() method.
+        return $this;
     }
 
-    public function getBody()
+    public function getBody(): StreamInterface
     {
+        if ($this->body === null) {
+            return new DummyStream('');
+        }
+
         return $this->body;
     }
 
-    public function withBody(StreamInterface $body): void
+    public function withBody(StreamInterface $body): ResponseInterface
     {
         $this->body = $body;
+
+        return $this;
     }
 
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
-        return $this->code;
+        return $this->code ?? 200;
     }
 
-    public function withStatus($code, $reasonPhrase = ''): void
+    public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
     {
         $this->code = $code;
+
+        return $this;
     }
 
-    public function getReasonPhrase(): void
+    public function getReasonPhrase(): string
     {
+        return '';
     }
 }

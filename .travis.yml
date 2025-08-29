@@ -1,16 +1,37 @@
 language: php
+
+# Supported PHP versions (project requires PHP ^8.0)
 php:
-  - 7.1.11
-  #- 7.2 Segfault in PHPUnit, warten auf 7.2.1
+  - 8.0
+  - 8.1
+  - 8.2
+  - 8.3
+  - 8.4
   - nightly
-install:
-  - composer self-update
-  - composer install --prefer-dist --optimize-autoloader
-script:
-  - composer coverage
-  - composer phpcs
+
+# Matrix configuration
+jobs:
+  allow_failures:
+    - php: nightly
+  fast_finish: true
+
+# Cache dependencies
 cache:
   directories:
     - $HOME/.composer/cache/files
+
+# Install dependencies
+install:
+  - composer self-update
+  - composer install --prefer-dist --optimize-autoloader --no-interaction
+
+# Run test suite
+script:
+  - composer test
+  - composer phpstan
+  - composer phpcs
+
+# Coverage reporting
 after_success:
+  - composer coverage
   - bash <(curl -s https://codecov.io/bash)

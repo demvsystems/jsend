@@ -12,7 +12,7 @@ class Json
      * Decodes the given JSON string or fails with an exception.
      *
      * @param string $json
-     * @return array
+     * @return array<string, mixed>
      * @throws InvalidArgumentException
      */
     public static function decode(string $json): array

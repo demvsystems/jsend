@@ -12,22 +12,17 @@ use function Dgame\Ensurance\ensure;
  */
 abstract class AbstractJSendResponse implements JSendResponseInterface
 {
+    private StatusInterface $status;
     /**
-     * @var StatusInterface
+     * @var array<string|int, mixed>|null
      */
-    private $status;
-    /**
-     * @var array|null
-     */
-    private $data;
+    private ?array $data;
 
     /**
-     * AbstractJSendResponse constructor.
-     *
      * @param StatusInterface $status
-     * @param array|null      $data
+     * @param array<string|int, mixed>|null $data
      */
-    public function __construct(StatusInterface $status, array $data = null)
+    public function __construct(StatusInterface $status, ?array $data = null)
     {
         $this->status = $status;
         $this->data   = $data;
@@ -42,7 +37,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     }
 
     /**
-     * @return array
+     * @return array<string|int, mixed>
      */
     final public function getData(): array
     {
@@ -50,12 +45,12 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public function asArray(): array
     {
         return [
-            'status' => (string) $this->status,
+            'status' => $this->status->getStatus(),
             'data'   => $this->data
         ];
     }
@@ -63,7 +58,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     /**
      * @internal
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
@@ -75,7 +70,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
      *
      * @return never This method calls exit() after sending its response
      */
-    public function respond(int $code = null): void
+    public function respond(?int $code = null): void
     {
         $code = $code ?? JSend::getDefaultHttpStatusCode($this);
         ensure($code)->isInt()->isBetween(100, 511);
@@ -86,33 +81,33 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
     }
 
     /**
-     * @param array|null $data
+     * @param array<string|int, mixed>|null $data
      *
      * @return AbstractJSendResponse
      */
-    public static function success(array $data = null): self
+    public static function success(?array $data = null): self
     {
-        return new static(Status::success(), $data);
+        return new static(Status::success(), $data); // @phpstan-ignore-line
     }
 
     /**
-     * @param array|null $data
+     * @param array<string|int, mixed>|null $data
      *
      * @return AbstractJSendResponse
      */
-    public static function fail(array $data = null): self
+    public static function fail(?array $data = null): self
     {
-        return new static(Status::fail(), $data);
+        return new static(Status::fail(), $data); // @phpstan-ignore-line
     }
 
     /**
      * @param string     $message
      * @param int|null   $code
-     * @param array|null $data
+     * @param array<string, mixed>|null $data
      *
      * @return AbstractJSendResponse
      */
-    public static function error(string $message, int $code = null, array $data = null): self
+    public static function error(string $message, ?int $code = null, ?array $data = null): self
     {
         return new JSendErrorResponse(
             Status::error(),
@@ -126,16 +121,21 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
 
     /**
      * @param int|null $code
-     * @param array    $headers
+     * @param array<string, string|string[]> $headers
      *
      * @return ResponseInterface
      */
-    public function asResponse(int $code = null, array $headers = []): ResponseInterface
+    public function asResponse(?int $code = null, array $headers = []): ResponseInterface
     {
         $code = $code ?? JSend::getDefaultHttpStatusCode($this);
 
+        $encoded = json_encode($this);
+        if ($encoded === false) {
+            throw new \RuntimeException('Failed to encode JSON');
+        }
+
         return new Response($code, [
             'content-type' => 'application/json',
-        ] + $headers, json_encode($this));
+        ] + $headers, $encoded);
     }
 }
