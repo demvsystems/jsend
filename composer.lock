@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d4eb4012faba59f12fd754286079afc",
+    "content-hash": "0a8658ce129314febdce89e3b231350a",
     "packages": [
         {
             "name": "dgame/php-ensurance",
-            "version": "v2.3.0",
+            "version": "v2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Dgame/php-ensurance.git",
-                "reference": "efab8d8035828d2d1bff2cc527c67070aa5e9cfd"
+                "reference": "c30c0ea3361ec318327268682edc2044e1355507"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Dgame/php-ensurance/zipball/efab8d8035828d2d1bff2cc527c67070aa5e9cfd",
-                "reference": "efab8d8035828d2d1bff2cc527c67070aa5e9cfd",
+                "url": "https://api.github.com/repos/Dgame/php-ensurance/zipball/c30c0ea3361ec318327268682edc2044e1355507",
+                "reference": "c30c0ea3361ec318327268682edc2044e1355507",
                 "shasum": ""
             },
             "require": {
@@ -34,15 +34,15 @@
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "src/"
-                ],
                 "files": [
                     "src/functions.php"
                 ],
                 "psr-4": {
                     "Dgame\\Ensurance\\": "src/"
-                }
+                },
+                "classmap": [
+                    "src/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -65,9 +65,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Dgame/php-ensurance/issues",
-                "source": "https://github.com/Dgame/php-ensurance/tree/v2.3.0"
+                "source": "https://github.com/Dgame/php-ensurance/tree/v2.3.1"
             },
-            "time": "2021-07-04T19:23:18+00:00"
+            "time": "2025-05-18T18:36:34+00:00"
         },
         {
             "name": "dgame/php-type",
@@ -94,16 +94,16 @@
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "src/"
-                ],
                 "files": [
                     "src/functions.php"
                 ],
                 "psr-4": {
                     "Dgame\\Type\\": "src/",
                     "Dgame\\Test\\Type\\": "test/"
-                }
+                },
+                "classmap": [
+                    "src/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
