@@ -52,7 +52,7 @@ final class ResponseFactory
      *
      * @return JSendResponseInterface
      */
-    public function success(array $data = null): JSendResponseInterface
+    public function success(?array $data = null): JSendResponseInterface
     {
         return new JSendResponse(Status::success(), $data);
     }
@@ -62,7 +62,7 @@ final class ResponseFactory
      *
      * @return JSendResponseInterface
      */
-    public function fail(array $data = null): JSendResponseInterface
+    public function fail(?array $data = null): JSendResponseInterface
     {
         return new JSendResponse(Status::fail(), $data);
     }
@@ -73,7 +73,7 @@ final class ResponseFactory
      *
      * @return JSendResponseInterface
      */
-    public function error(array $response, int $code = null): JSendResponseInterface
+    public function error(array $response, ?int $code = null): JSendResponseInterface
     {
         if ($code !== null || !array_key_exists('code', $response)) {
             $response['code'] = $code;
