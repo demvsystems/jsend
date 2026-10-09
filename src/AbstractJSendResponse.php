@@ -27,7 +27,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
      * @param StatusInterface $status
      * @param array|null      $data
      */
-    public function __construct(StatusInterface $status, array $data = null)
+    public function __construct(StatusInterface $status, ?array $data = null)
     {
         $this->status = $status;
         $this->data   = $data;
@@ -75,7 +75,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
      *
      * @return never This method calls exit() after sending its response
      */
-    public function respond(int $code = null): void
+    public function respond(?int $code = null): void
     {
         $code = $code ?? JSend::getDefaultHttpStatusCode($this);
         ensure($code)->isInt()->isBetween(100, 511);
@@ -90,7 +90,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
      *
      * @return AbstractJSendResponse
      */
-    public static function success(array $data = null): self
+    public static function success(?array $data = null): self
     {
         return new static(Status::success(), $data);
     }
@@ -100,7 +100,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
      *
      * @return AbstractJSendResponse
      */
-    public static function fail(array $data = null): self
+    public static function fail(?array $data = null): self
     {
         return new static(Status::fail(), $data);
     }
@@ -112,7 +112,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
      *
      * @return AbstractJSendResponse
      */
-    public static function error(string $message, int $code = null, array $data = null): self
+    public static function error(string $message, ?int $code = null, ?array $data = null): self
     {
         return new JSendErrorResponse(
             Status::error(),
@@ -130,7 +130,7 @@ abstract class AbstractJSendResponse implements JSendResponseInterface
      *
      * @return ResponseInterface
      */
-    public function asResponse(int $code = null, array $headers = []): ResponseInterface
+    public function asResponse(?int $code = null, array $headers = []): ResponseInterface
     {
         $code = $code ?? JSend::getDefaultHttpStatusCode($this);
 

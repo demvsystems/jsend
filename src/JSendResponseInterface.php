@@ -31,7 +31,7 @@ interface JSendResponseInterface extends JsonSerializable
      *
      * @return never This method calls exit() after sending its response
      */
-    public function respond(int $code = null): void;
+    public function respond(?int $code = null): void;
 
     /**
      * @param int|null $code
@@ -39,5 +39,5 @@ interface JSendResponseInterface extends JsonSerializable
      *
      * @return ResponseInterface
      */
-    public function asResponse(int $code = null, array $headers = []): ResponseInterface;
+    public function asResponse(?int $code = null, array $headers = []): ResponseInterface;
 }
