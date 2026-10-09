@@ -14,7 +14,7 @@
     "require": {
         "php": "^7.1 || ^8.0",
         "ext-json": "*",
-        "dgame/php-ensurance": "^2.0",
+        "dgame/php-ensurance": "^2.3.1",
         "psr/http-message": "^1.0",
         "guzzlehttp/psr7": "^2.0"
     },
